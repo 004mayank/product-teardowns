@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="images/zomato-logo.png" alt="Zomato logo" width="200"/>
+</p>
+
 # Zomato - Search to Checkout Funnel Teardown
 
 > This teardown is based on publicly observable product behavior and reasonable assumptions.  
