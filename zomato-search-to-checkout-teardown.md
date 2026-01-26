@@ -7,7 +7,17 @@
 > This teardown is based on publicly observable product behavior and reasonable assumptions.  
 > Metrics mentioned are directional, not actual internal data.
 
-**Status:** v1 - Initial analysis
+**Status:** v2 – Hypothesis-driven analysis
+
+## Assumptions & Scope
+
+This teardown is based on the following assumptions:
+- Analysis is focused on food delivery (not dining or grocery)
+- Metrics are inferred from user behavior and public benchmarks
+- User behavior reflects urban, high-frequency users
+- Constraints such as logistics capacity and restaurant SLAs are assumed to be fixed
+
+The goal is directional insight, not internal accuracy.
 
 ---
 
@@ -76,6 +86,16 @@ The first successful **order completion**.
 Everything before this is friction; everything after this is retention.
 
 ---
+### Funnel Drop-off Hypotheses
+
+| Funnel Stage | Likely Drop-off Reason | Impact |
+|------------|-----------------------|--------|
+| Homepage → Restaurant | Too many options, weak personalization | Slower decision-making |
+| Restaurant → Menu | ETA or rating mismatch | Early exits |
+| Menu → Add to Cart | Menu length, price anchoring | Activation loss |
+| Cart → Checkout | Fee shock, offer confusion | Conversion drop |
+| Payment → Order | Payment failures, address friction | Hard drop-offs |
+
 
 ## 4. North Star Metric
 
@@ -112,6 +132,15 @@ For a transactional product, repeat behavior matters more than raw usage.
 - Average order value (AOV)
 - Platform + delivery fee contribution
 - Zomato Gold adoption
+
+### Metrics Mapped to Funnel Stages
+
+- Discovery: Restaurant CTR, time-to-first-click
+- Menu: Menu scroll depth, item impressions
+- Activation: % users adding item to cart
+- Conversion: Cart-to-checkout completion rate
+- Completion: Successful orders per session
+- Retention: Orders per user per week
 
 ---
 
@@ -191,7 +220,7 @@ These appear to be **intentional trade-offs**, not accidental design flaws.
 ### Final 30 Days - Scale or Kill
 - Roll out winning experiments
 - Kill low-impact nudges
-- Optimize for **Orders / MAU**, not just AOV
+- Optimize primarily for Orders / MAU, with AOV treated as a secondary constraint.
 
 ---
 
