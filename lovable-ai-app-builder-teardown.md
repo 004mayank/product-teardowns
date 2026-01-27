@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="images/Lovable.png" alt="Loavble logo" width="200"/>
+</p>
+
 # Lovable – AI App Builder Product Teardown
 
 > This teardown is based on publicly observable product behavior and reasonable assumptions.  
