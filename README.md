@@ -22,5 +22,6 @@ As a Product Manager, I use teardowns to:
 
 ## Teardowns
 - Zomato – Search to Checkout Funnel *(in progress)*
+- Loveable – AI agent builder *(in progress)*
 
 More teardowns will be added iteratively to this repo.
