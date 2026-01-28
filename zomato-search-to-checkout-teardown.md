@@ -7,7 +7,7 @@
 > This teardown is based on publicly observable product behavior and reasonable assumptions.  
 > Metrics mentioned are directional, not actual internal data.
 
-**Status:** v2 – Hypothesis-driven analysis
+**Status:** v3 – Prioritization & execution lens
 
 ## Assumptions & Scope
 
@@ -46,6 +46,36 @@ Given the high frequency and high intent nature of food ordering, even small fun
 - Uncertainty around delivery time and order fulfillment
 
 Zomato’s core job is to **reduce decision time and delivery uncertainty** for a high-intent user.
+
+## User Segmentation Lens
+
+Not all Zomato users experience the ordering funnel the same way.
+Optimizing for an “average user” risks misallocating effort.
+
+### Segment 1: Power Users
+- Order 3–6 times per week
+- High familiarity with fees and offers
+- Lower sensitivity to minor friction
+
+Primary risk: Habit fatigue, price accumulation over time
+
+---
+
+### Segment 2: Price-Sensitive Regulars
+- Order 1–2 times per week
+- Actively compare prices and offers
+- Highly sensitive to fee transparency
+
+Primary risk: Checkout abandonment due to perceived unfair pricing
+
+---
+
+### Segment 3: First-Time / Infrequent Users
+- Low trust, low familiarity
+- Highest cognitive and price anxiety
+- Least tolerant of surprises
+
+Primary risk: Never reaching second order
 
 ---
 
@@ -173,6 +203,23 @@ Large menus, especially from cloud kitchens, increase:
 
 This likely causes drop-offs before activation, particularly for first-time users.
 
+## Areas I Would Deprioritize (for Now)
+
+Given limited product and engineering capacity, the following areas
+are unlikely to deliver the highest ROI in the short term:
+
+- Further expanding restaurant choice
+  - Choice overload is already a problem, not a constraint
+
+- Aggressive AOV optimization nudges
+  - Risks increasing checkout abandonment for price-sensitive users
+
+- Cosmetic checkout UI changes
+  - Core issue is expectation mismatch, not visual clarity
+
+Deprioritization is intentional to focus effort on expectation-setting
+and trust-building earlier in the funnel.
+
 ---
 
 ### Late Price Revelation
@@ -206,6 +253,22 @@ These appear to be **intentional trade-offs**, not accidental design flaws.
 ---
 
 ## 9. What I’d Do as PM (90-Day Plan)
+
+## The One Bet I’d Make
+
+If forced to choose a single bet, I would prioritize:
+
+**Early, honest price expectation setting before checkout.**
+
+This includes:
+- Fee-inclusive price previews
+- Clear framing of why fees exist
+- Consistent messaging from menu → cart → checkout
+
+Rationale:
+- Addresses the highest drop-off point
+- Improves trust for new and infrequent users
+- Scales better than one-off discounts or offers
 
 ### First 30 Days - Diagnose
 - Measure menu scroll depth vs cart addition
