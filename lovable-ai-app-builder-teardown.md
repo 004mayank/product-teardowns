@@ -7,7 +7,7 @@
 > This teardown is based on publicly observable product behavior and reasonable assumptions.  
 > Metrics mentioned are directional, not actual internal data.
 
-**Status:** v1 – Initial analysis
+**Status:** v2 – Trust, activation & iteration lens
 
 ---
 
@@ -62,12 +62,20 @@ App Iteration *(capability improvement)*
 ↓  
 Deploy / Share *(value realization)*
 
+## Activation & Value Moment
 
+For Lovable, activation is not account creation or the first prompt.
+The true activation moment is when a user:
 
-### Activation Moment
-The first **working app preview** that matches the user’s mental model.
+- Sees a **working app preview**, and
+- Feels confident enough to **iterate on it at least once**
 
-This is Lovable’s “magic moment”.
+A single successful generation without iteration is closer to curiosity
+than value realization.
+
+A stronger activation signal would be:
+- First app preview **plus**
+- At least one successful refinement iteration
 
 ---
 
@@ -133,6 +141,17 @@ When generation fails or produces incorrect output:
 
 This increases anxiety during iteration.
 
+## Trust & Predictability Challenges
+
+As users move beyond the first app, confidence can erode due to:
+
+- High variance in output quality for similar prompts
+- Limited explanation when generations fail or degrade
+- Unclear system constraints (what Lovable can and cannot handle well)
+
+This creates a trust gap where users hesitate to invest time
+into more complex or meaningful applications.
+
 ---
 
 ### Trust Gap Beyond Toy Apps
@@ -165,7 +184,31 @@ This hurts:
 
 These are deliberate choices, but they introduce long-term scaling challenges.
 
+## Where Guardrails Are Necessary
+
+While Lovable currently optimizes for flexibility and creativity,
+some lightweight guardrails would likely improve user outcomes:
+
+- Prompt scaffolding for common app patterns
+- Warnings when requests exceed current system capabilities
+- Clear signaling of prototype vs production readiness
+
+The goal of guardrails here is not restriction,
+but expectation management and confidence building.
+
 ---
+## The Second App Problem
+
+Lovable’s long-term retention is defined less by first app creation
+and more by whether users return to build a second app.
+
+Key challenges:
+- Fear of failure after an imperfect first attempt
+- Cognitive reset required for each new app
+- Lack of reusable patterns or learnings across projects
+
+Solving for the “second app” is critical for moving Lovable
+from novelty to habit.
 
 ## 9. What I’d Do as PM (90-Day Plan)
 
@@ -187,6 +230,9 @@ These are deliberate choices, but they introduce long-term scaling challenges.
 - Double down on features that improve second-app creation
 - Reduce prompt variance through smart defaults
 - Optimize for **successful apps per user**, not raw generations
+
+Across all initiatives, priority would be given to features that
+increase successful iteration and second-app creation.
 
 ---
 
