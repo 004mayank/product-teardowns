@@ -2,12 +2,12 @@
   <img src="images/Lovable.png" alt="Loavble logo" width="200"/>
 </p>
 
-# Lovable – AI App Builder Product Teardown
+# Lovable - AI App Builder Product Teardown
 
 > This teardown is based on publicly observable product behavior and reasonable assumptions.  
 > Metrics mentioned are directional, not actual internal data.
 
-**Status:** v2 – Trust, activation & iteration lens
+**Status:** v2 - Trust, activation & iteration lens
 
 ---
 
@@ -212,21 +212,21 @@ from novelty to habit.
 
 ## 9. What I’d Do as PM (90-Day Plan)
 
-### First 30 Days – Diagnose
+### First 30 Days - Diagnose
 - Measure where users get stuck in iteration
 - Track abandoned apps vs completed previews
 - Identify repeat vs one-time builders
 
 ---
 
-### Next 30 Days – Experiment
+### Next 30 Days - Experiment
 - Add lightweight explanations for failed generations
 - Introduce “guided prompt” suggestions
 - Surface app structure in a simplified way
 
 ---
 
-### Final 30 Days – Scale or Kill
+### Final 30 Days - Scale or Kill
 - Double down on features that improve second-app creation
 - Reduce prompt variance through smart defaults
 - Optimize for **successful apps per user**, not raw generations
