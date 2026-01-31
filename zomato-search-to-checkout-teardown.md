@@ -7,7 +7,7 @@
 > This teardown is based on publicly observable product behavior and reasonable assumptions.  
 > Metrics mentioned are directional, not actual internal data.
 
-**Status:** v3 – Prioritization & execution lens
+**Status:** v3 - Prioritization & execution lens
 
 ## Assumptions & Scope
 
@@ -53,7 +53,7 @@ Not all Zomato users experience the ordering funnel the same way.
 Optimizing for an “average user” risks misallocating effort.
 
 ### Segment 1: Power Users
-- Order 3–6 times per week
+- Order 3-6 times per week
 - High familiarity with fees and offers
 - Lower sensitivity to minor friction
 
@@ -62,7 +62,7 @@ Primary risk: Habit fatigue, price accumulation over time
 ---
 
 ### Segment 2: Price-Sensitive Regulars
-- Order 1–2 times per week
+- Order 1-2 times per week
 - Actively compare prices and offers
 - Highly sensitive to fee transparency
 
