@@ -7,7 +7,7 @@
 > This teardown is based on publicly observable product behavior and reasonable assumptions.  
 > Metrics mentioned are directional, not actual internal data.
 
-**Status:** v2 - Trust, activation & iteration lens
+**Status:** v3 - Final
 
 ---
 
@@ -236,10 +236,12 @@ increase successful iteration and second-app creation.
 
 ---
 
-## 10. Key Takeaway
+## 10. PM Takeaways
 
-Lovable excels at creating a fast, delightful first experience, but risks losing users when they move from *exploration* to *serious building*.
+- AI products fail quietly when trust erodes
+- Iteration quality matters more than first output
+- Predictability and recovery build confidence
+- Retention depends on safety, not surprise
 
-The biggest opportunity lies in **making iteration feel predictable and safe**, without sacrificing speed or magic.
-
+Lovable’s opportunity lies in shifting from **magic** to **reliability** without losing creativity.
 
