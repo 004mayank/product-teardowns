@@ -2,7 +2,7 @@
   <img src="images/whatsapp.png" alt="WhatsApp" width="120" />
 </p>
 
-# WhatsApp — Product Teardown
+# WhatsApp- Product Teardown
 
 > Lens: Product Manager • Scope: **publicly observable behavior only** (no internal Meta data claims)
 
@@ -14,7 +14,7 @@
 
 ---
 
-## 0) Product in one sentence
+## Product in one sentence
 WhatsApp is a **default communication layer**: fast messaging + calls anchored to your phone number, designed to work across network quality, device types, and social contexts.
 
 ## 1) Who it serves (observable segments)
