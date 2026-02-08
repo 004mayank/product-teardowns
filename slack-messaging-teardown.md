@@ -1,6 +1,6 @@
-# Slack Messaging — Product Teardown (V2)
+# Slack Messaging — Product Teardown (V3)
 
-**Version history:** V1 → baseline teardown. V2 → adds a detailed metrics & instrumentation plan tied to Slack’s core loops.
+**Version history:** V1 → baseline teardown. V2 → adds a detailed metrics & instrumentation plan tied to Slack’s core loops. V3 → adds an opportunity tree with loop‑mapped product bets + experiment and metric plan.
 
 ## 1) Positioning
 
@@ -297,8 +297,119 @@ A practical plan is to instrument **events** consistently across clients (deskto
 
 ---
 
-## 8) Notes for future teardown iterations (not claims)
+## 8) Opportunity tree (V3): loop‑mapped product bets
+
+**North Star to move:** **WAT‑SC (Weekly Active Teams with Successful Coordination)** (defined in §5).  
+**Strategy:** Improve the reliability and signal quality of loops A/B/C so teams reach coordination outcomes with less noise.
+
+### Opportunity Tree (3–5 branches)
+
+**Root:** Teams use Slack to coordinate work async without meetings/inbox.
+
+1) **Channel clarity + norms (Loop A; cross‑cuts Loop B)**  
+   **User/team job:** “Post updates/questions in the *right* place so the right people can respond, and future me can find it.”
+
+   - **Hypothesis**: If Slack helps teams create/maintain channel purpose + posting norms at the moment of posting/creating, then channel sprawl decreases and response reliability in channels increases.
+   - **Concrete product bet(s)**:
+     - **Channel purpose guardrails** at create time: require a purpose template (e.g., project / team / announcements / incidents) + suggested naming + auto‑generated description.
+     - **Posting assist**: when composing, show “best channel” suggestion (based on people mentioned, recent similar threads, channel activity), and a soft warning for posting in low‑response/low‑membership channels.
+     - **Lightweight channel lifecycle nudges**: monthly prompt to owners/admins for low‑activity channels (archive/merge/rename), with a “recommended action” reason.
+   - **Experiment design**:
+     - **Rollout + holdout by workspace** (to avoid cross‑contamination): 10% holdout for 4–6 weeks.
+     - Measure pre/post in matched cohorts by workspace size and message volume.
+   - **Primary metrics (expected direction)**:
+     - **Active channels per WAU** (↓) and **long‑tail channel share** (↓).
+     - **% channel posts with reply/reaction within T hours** (↑) (Loop A outcome).
+     - **Thread usage rate** (↑) *or* stable while outcomes improve (depending on baseline).
+     - **WAT‑SC** (↑).
+   - **Key risks / 2nd‑order effects**:
+     - Over‑standardization could slow channel creation (“process tax”), harming activation.
+     - “Best channel” suggestions may feel intrusive; could push more DMs if users avoid posting.
+     - Archiving nudges may delete perceived “memory” unless migration/search affordances are strong.
+
+2) **Notification load shaping (Loop B)**  
+   **User/team job:** “Stay responsive to what matters without drowning in pings.”
+
+   - **Hypothesis**: If Slack reduces low‑value notifications and bundles attention in predictable windows, then notification fatigue decreases and mention response reliability improves.
+   - **Concrete product bet(s)**:
+     - **Smart notification bundling** for non‑mention channel chatter: bundle into periodic digests with “top threads you’re involved in” and “needs your response.”
+     - **Mention intent UI**: when typing `@here/@channel`, require a quick intent picker (Urgent / FYI / Decision needed) that adjusts delivery (e.g., immediate vs digest) and defaults to least‑disruptive.
+     - **Personal focus mode presets**: 1‑tap modes (Deep work / On call / In meetings) that change notification rules + presence status, with clear revert.
+   - **Experiment design**:
+     - **A/B by user** for bundling/presets (minimize admin dependency), with guardrails for critical mentions.
+     - 2–4 week test; segment by role (IC vs manager), client (mobile vs desktop), and workspace message volume.
+   - **Primary metrics (expected direction)**:
+     - **Notification open rate** (↑) *for delivered notifications* and **mute rate** (↓).
+     - **Mention response rate** (↑) and **median mention response time** (↓) (Loop B health).
+     - **% sessions with “scroll depth” > threshold** (↓) as an overload proxy.
+     - **WAT‑SC** (↑) via improved reliability.
+   - **Key risks / 2nd‑order effects**:
+     - Bundling may delay awareness for time‑sensitive but non‑mention events (e.g., incident channel chatter).
+     - Intent picker could add friction; might reduce `@here/@channel` but increase DMs.
+     - Users may “set and forget” focus modes and miss important updates; needs safety rails.
+
+3) **Integration signal quality (Loop C; supports Loop A)**  
+   **User/team job:** “Get actionable alerts from tools without turning channels into noisy dashboards.”
+
+   - **Hypothesis**: If Slack helps teams score, de‑duplicate, and summarize integration alerts, then humans take action more often and alert channels stay usable.
+   - **Concrete product bet(s)**:
+     - **Alert de‑duplication + threading by entity** (incident/ticket/deploy id): new alerts auto‑attach to a single thread root with a running summary.
+     - **Signal quality controls**: per‑integration “importance” and “noise filters” (rate limits, thresholds) surfaced as simple presets (e.g., Only failures, Only assigned to this team).
+     - **Actionability requirement**: encourage structured alerts (owner, severity, next action) via app guidelines + UI warnings when missing.
+   - **Experiment design**:
+     - **Rollout by channel** (opt‑in) with a **workspace holdout** where possible.
+     - Evaluate separately for high‑volume alert channels (#incidents, #deploys).
+   - **Primary metrics (expected direction)**:
+     - **Integration alert → human comment rate** (↑) and **integration action click‑through** (↑).
+     - **Alert channel reply depth in threads** (↑) while **top‑level messages per day** (↓) (less spam, more threaded resolution).
+     - **WAT‑SC** (↑) via more acted‑upon signals.
+   - **Key risks / 2nd‑order effects**:
+     - Over‑aggressive de‑duplication could hide distinct issues; requires transparent “collapsed alerts” UI.
+     - App developers may not adopt structured alerts; Slack may need fallbacks.
+     - Threading everything could make the channel feel “quiet” and reduce ambient awareness.
+
+4) **Make outcomes explicit (Loop A + Loop B)**  
+   **User/team job:** “Close the loop—turn conversation into a decision/next step that’s findable later.”
+
+   - **Hypothesis**: If Slack makes it trivial to mark threads as resolved/decided and to capture a lightweight summary, then coordination outcomes increase without increasing message volume.
+   - **Concrete product bet(s)**:
+     - **Thread resolution state**: add a “Mark resolved” action with optional “Decision / Owner / Due date” fields (lightweight, not a full task system).
+     - **Auto‑suggest closure reactions** (✅) when a thread has a clear answer (“Thanks, got it”, “Done”) to increase closure signal consistency.
+     - **Outcome cards**: a compact artifact posted back to the channel when resolved (1–2 lines + permalink), improving visibility.
+   - **Experiment design**:
+     - **A/B by workspace** (to avoid mixed norms) for 4 weeks.
+     - Focus on channels with high Q&A/requests (e.g., #help‑it, #eng‑support).
+   - **Primary metrics (expected direction)**:
+     - **Thread resolution rate** (↑) and **% channel posts with a reply within T** (↑).
+     - **Decision/closure reaction rate** (↑) (using reaction_class=closure from §5.3).
+     - **Search success rate** (↑) and **return‑to‑message rate** (↑) (system‑of‑record).
+     - **WAT‑SC** (↑).
+   - **Key risks / 2nd‑order effects**:
+     - Could create “process theatre” where teams mark resolved without real clarity.
+     - Overlaps with tasks/project tools; risk of scope creep.
+     - If outcome cards are noisy, they become another spam vector.
+
+5) **Default to shared context over DMs (cross‑loop A/B)**  
+   **User/team job:** “Ask in public when it helps the team, without feeling awkward or over‑broadcasting.”
+
+   - **Hypothesis**: If Slack gently redirects certain DM patterns to channels/threads, then team knowledge becomes more discoverable and repeated questions drop.
+   - **Concrete product bet(s)**:
+     - **DM → channel suggestion** when a DM thread includes >2 participants, repeated questions, or references a known project channel (“Continue in #project‑x?” with one‑tap move + message link).
+     - **Ask‑in‑channel templates**: when starting a DM with a question, offer a structured post template that encourages context + tags.
+   - **Experiment design**:
+     - **A/B by user** with strict privacy guardrails (no content logging beyond existing analytics; only pattern triggers).
+     - Measure in workspaces that already have active channels to avoid pushing into empty channels.
+   - **Primary metrics (expected direction)**:
+     - **% messages in channels vs DMs** (channel share ↑) for “team knowledge” segments.
+     - **Search success rate** (↑) and **repeat question proxy** (↓) (e.g., similar queries/messages).
+     - **WAT‑SC** (↑).
+   - **Key risks / 2nd‑order effects**:
+     - Could reduce psychological safety for sensitive asks; needs “don’t suggest” controls.
+     - Might increase channel noise if templates encourage over‑posting.
+
+---
+
+## 9) Notes for future teardown iterations (not claims)
 - Deeper treatment of admin/compliance, permissions, and enterprise controls.
 - More detail on onboarding flows and templates.
 - Comparative teardown vs Teams for enterprise deployment and meeting integration.
-- Opportunity tree / product bets tied to loops (with hypotheses + experiment plan).
