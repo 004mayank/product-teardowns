@@ -1,4 +1,6 @@
-# Slack Messaging — Product Teardown (V1)
+# Slack Messaging — Product Teardown (V2)
+
+**Version history:** V1 → baseline teardown. V2 → adds a detailed metrics & instrumentation plan tied to Slack’s core loops.
 
 ## 1) Positioning
 
@@ -153,25 +155,121 @@
 
 ---
 
-## 5) Metrics (simple, actionable)
+## 5) Metrics & instrumentation plan (V2)
 
-### Activation
-- **A1:** User sends first message (DM or channel) within first session.
-- **A2:** User joins/creates at least 1 channel and returns to it.
-- **A3:** User experiences “response”: receives a reply/reaction on their message.
-- **A4 (team-level):** Workspace has ≥ X members with ≥ Y messages over first week (team activation matters more than individual).
+Slack is a **team product**: the “unit of value” is usually a **team/workspace** reaching reliable coordination loops, not a single user sending a message once.
 
-### Engagement
-- **E1:** Weekly active users (WAU) and daily active users (DAU); DAU/WAU ratio.
-- **E2:** Messages sent per active user; % in channels vs DMs.
-- **E3:** Threads created/replied; reactions per message (signals lightweight participation).
-- **E4:** Search usage rate and successful search sessions (proxy for “Slack as memory”).
-- **E5:** Notification interactions (open/respond after mention) without excessive mute/uninstall.
+### 5.1 North Star + input metrics
 
-### Retention
-- **R1:** Week 1 → Week 4 cohort retention at workspace level.
-- **R2:** Channel-level retention: repeat participation in core channels.
-- **R3:** Expansion retention: growth in active channels, integrations connected, or Slack Connect usage.
+**Proposed North Star (team-level):**
+- **Weekly Active Teams with Successful Coordination (WAT-SC)**
+  - A workspace counts if, in a given week, it has:
+    - **≥ N active members** (distinct users who read or send messages)
+    - and **≥ M “coordination outcomes”** in channels/threads (see definition below)
+
+**Why this North Star:** it’s closer to durable value than raw messages. You can “spam messages” without improving coordination. A coordination outcome proxies: *a question answered, a decision made, work unblocked, or a signal acted upon*.
+
+**Input metrics (leading indicators):**
+- **Attention routing health:** mention → response rate, median response time, % mentions that get *any* reply/reaction.
+- **Shared context health:** % conversations in channels vs DMs for team knowledge, thread usage rate, message link usage.
+- **Signal-to-noise health:** notification mute rate, channel mute rate, % messages in muted channels, “scroll depth per session” (proxy for overload).
+- **System-of-record health:** search success rate, message saved/bookmarked rate, “return-to-message” rate.
+- **Automation health:** integration install rate, integration alert → human action rate.
+
+### 5.2 Define “coordination outcomes” (operational definition)
+A **coordination outcome** is a measurable end-state event that indicates work moved forward in Slack.
+
+Candidate outcome signals (counted weekly at workspace level):
+- A message in a **channel** receives a **reply in thread** (or reply in channel) within **T hours**.
+- A message with an **@mention** receives **any response** (reply or reaction) within **T hours**.
+- A thread gets **≥ 2 distinct participants** (indicates multi-party resolution).
+- A message gets a **decision/closure reaction** (workspace-defined, e.g., ✅/👍) *after* discussion.
+- An integration alert triggers a **follow-up action** (click button, open link, change state) and then a **human comment**.
+
+Notes:
+- Don’t treat every reaction as an outcome; separate “ack” (👀) vs “closure” (✅) via reaction taxonomy.
+- Keep thresholds configurable by workspace size (small team vs enterprise).
+
+### 5.3 Instrumentation: event taxonomy (what to log)
+A practical plan is to instrument **events** consistently across clients (desktop/web/mobile) and unify them into funnel/loop analytics.
+
+**Core entities (properties attached to many events):**
+- `workspace_id`, `org_id` (if relevant), `user_id`
+- `surface` (channel | dm | group_dm)
+- `channel_id`, `is_private_channel`, `channel_member_count_bucket`
+- `message_id`, `thread_root_message_id` (nullable)
+- `client` (desktop | web | ios | android)
+- `is_external_collab` (Slack Connect), `is_guest`
+
+**Core events (minimum viable set):**
+- Messaging:
+  - `message_sent` (props: surface, has_mention, mention_count, has_file, message_length_bucket)
+  - `message_received` (client-side or server-side delivery proxy)
+  - `thread_reply_sent` (props: participants_so_far_bucket)
+  - `reaction_added` (props: emoji, reaction_class=ack|vote|closure)
+  - `message_permalink_copied` / `message_link_opened`
+- Attention:
+  - `mention_created` (props: mention_type=user|here|channel)
+  - `notification_delivered` / `notification_opened` (props: type=mention|dm|channel)
+  - `notification_setting_changed` (props: channel_level|global, change=muted|unmuted|freq)
+- Context/system-of-record:
+  - `search_started` (props: query_length_bucket, filter_used)
+  - `search_result_clicked` (props: result_type=message|file|channel, position_bucket)
+  - `save_for_later_added` / `bookmark_added`
+- Integrations:
+  - `app_installed` (props: app_id, install_surface)
+  - `integration_message_posted` (props: app_id, channel_id)
+  - `integration_action_clicked` (props: app_id, action_type)
+- Collaboration topology:
+  - `channel_created` / `channel_archived`
+  - `user_joined_channel` / `user_left_channel`
+
+**Derived metrics (computed, not logged):**
+- `mention_response_time` = time between `mention_created` and first response event.
+- `thread_resolution_rate` = % threads with ≥2 participants and a closure signal within T.
+- `search_success_rate` = % `search_started` sessions with `search_result_clicked` and dwell ≥ X sec.
+
+### 5.4 Loop-level dashboards (tie metrics to loops)
+
+**Loop A — Channel coordination dashboard**
+- % of workspace messages in **channels** (vs DMs) for active users.
+- Thread usage: threads per 100 channel messages; % channel messages with a thread.
+- Outcome: % channel posts that receive a reply/reaction within T hours.
+- Channel health distribution: active channels per week per user; long-tail channel sprawl signal.
+
+**Loop B — Mention/notification dashboard**
+- Mention volume per active user; distribution by type (@user vs @here/@channel).
+- Mention response rate + median/90th percentile response time.
+- Notification open rate; “notification fatigue” signals: mute rate, uninstall/disable push (if available).
+
+**Loop C — Integration dashboard**
+- Active integrations per workspace; integration messages per week.
+- Integration alert → human comment rate (are signals being acted on?).
+- Integration action click-through and completion (if actions are trackable).
+
+### 5.5 Activation & retention funnels (team-first)
+
+**Individual activation (first 1–2 sessions)**
+- A1: joins/creates a channel
+- A2: sends first message
+- A3: receives a reply/reaction (time-to-first-response)
+- A4: uses a primitive that increases “stickiness”: thread reply, reaction, message link, or search click
+
+**Team activation (first 7 days)**
+- T1: ≥ 3 members active in channels
+- T2: ≥ 1 channel with back-and-forth (≥ 5 messages from ≥ 2 people)
+- T3: ≥ 1 thread created (signals scalability)
+- T4: ≥ 1 integration installed OR ≥ 1 search success session (signals system-of-record adoption)
+
+**Retention (week 1 → week 4)**
+- Workspace retention segmented by: team size, channel/DM mix, notification settings, integrations.
+- “Healthy loop” retention: do teams with high mention-response reliability retain better?
+
+### 5.6 Failure modes + what to watch (instrumentation as an alarm system)
+- **Notification overload** → rising mute rate, falling notification open rate, rising DM-only behavior.
+- **Channel sprawl** → increasing active channels per user, decreasing response rate in long-tail channels.
+- **DM overuse** → rising % DM messages + falling channel outcomes; decisions not discoverable.
+- **Low reliability** (Slack feels “ignored”) → falling mention response rate, longer response times, fewer closure reactions.
 
 ---
 
@@ -203,3 +301,4 @@
 - Deeper treatment of admin/compliance, permissions, and enterprise controls.
 - More detail on onboarding flows and templates.
 - Comparative teardown vs Teams for enterprise deployment and meeting integration.
+- Opportunity tree / product bets tied to loops (with hypotheses + experiment plan).
