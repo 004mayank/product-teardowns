@@ -9,7 +9,7 @@
 ---
 
 ## Version history
-- **v3 (current):** added competitive positioning, lifecycle risks, prioritization framework, and an opportunity tree (building on v2).
+- **v3 (current):** added competitive positioning, lifecycle risks, prioritization framework, an opportunity tree (building on v2), and clarified the Status loop as an ambient retention lever.
 - **v2:** expanded segments, explicit funnels + activation definitions, loop-specific metric definitions, experiment ideas, and a PM instrumentation/event taxonomy.
 - **v1:** baseline framing (core loop, funnel, north star metrics, trade-offs, and initial opportunities).
 
@@ -69,6 +69,17 @@ Metrics:
 Metrics:
 - **Call initiation rate**
 - **Call setup success** and **drop rate**
+
+### 3.5 Status loop (ambient touchpoints → conversation starters)
+Status is a lightweight “I’m here” surface that can (a) maintain connection without requiring a DM and (b) create **low-friction triggers** back into messaging.
+
+**Post status → Contacts view → Lightweight reactions/replies → 1:1 chat continues**
+
+Metrics:
+- **Status posters per WAU** (creation adoption)
+- **Viewer reach distribution** (median viewers per status; long tail matters)
+- **Status → Chat conversion:** % of viewers who react/reply and then send a message within 24h
+- **Status fatigue indicators:** status mute rate, hide rate
 
 ## 4) Funnels (explicit, with “activation” definitions)
 ### 4.1 New user activation funnel (phone-number anchored)
@@ -272,6 +283,7 @@ A simple scoring model:
 - A3: improve **week-1 stickiness**
   - Help users create/join the *right* group at the right moment
   - Reduce lapsed-user friction (deep link → open → send)
+  - Use **Status** as an ambient trigger back into DMs (status → reaction/reply → chat)
 
 ### Branch B — Improve conversation health (CCR, TTFR)
 - Reduce TTFR via better presence cues and notification UX
