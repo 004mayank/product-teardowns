@@ -1,4 +1,4 @@
-# Slack Messaging — Product Teardown (V3)
+# Slack Messaging - Product Teardown
 
 **Version history:** V1 → baseline teardown. V2 → adds a detailed metrics & instrumentation plan tied to Slack’s core loops. V3 → adds an opportunity tree with loop‑mapped product bets + experiment and metric plan.
 
@@ -43,7 +43,7 @@
 
 ## 3) Core loops
 
-### Loop A — Channel coordination loop (Broadcast → Responses → Decision log)
+### Loop A - Channel coordination loop (Broadcast → Responses → Decision log)
 **Goal:** Make team updates and coordination happen in a shared, persistent place.
 
 **Trigger / input**
@@ -67,7 +67,7 @@
 
 ---
 
-### Loop B — Mention & notification loop (Attention routing → Fast resolution)
+### Loop B - Mention & notification loop (Attention routing → Fast resolution)
 **Goal:** Convert questions/blockers into quick answers by routing attention precisely.
 
 **Trigger / input**
@@ -90,7 +90,7 @@
 
 ---
 
-### Loop C — Integration loop (Tool emits signal → Team acts → Tool updates)
+### Loop C - Integration loop (Tool emits signal → Team acts → Tool updates)
 **Goal:** Bring operational signals into the flow of conversation so work happens where attention already is.
 
 **Trigger / input**
@@ -155,7 +155,7 @@
 
 ---
 
-## 5) Metrics & instrumentation plan (V2)
+## 5) Metrics & instrumentation plan 
 
 Slack is a **team product**: the “unit of value” is usually a **team/workspace** reaching reliable coordination loops, not a single user sending a message once.
 
@@ -231,18 +231,18 @@ A practical plan is to instrument **events** consistently across clients (deskto
 
 ### 5.4 Loop-level dashboards (tie metrics to loops)
 
-**Loop A — Channel coordination dashboard**
+**Loop A - Channel coordination dashboard**
 - % of workspace messages in **channels** (vs DMs) for active users.
 - Thread usage: threads per 100 channel messages; % channel messages with a thread.
 - Outcome: % channel posts that receive a reply/reaction within T hours.
 - Channel health distribution: active channels per week per user; long-tail channel sprawl signal.
 
-**Loop B — Mention/notification dashboard**
+**Loop B - Mention/notification dashboard**
 - Mention volume per active user; distribution by type (@user vs @here/@channel).
 - Mention response rate + median/90th percentile response time.
 - Notification open rate; “notification fatigue” signals: mute rate, uninstall/disable push (if available).
 
-**Loop C — Integration dashboard**
+**Loop C - Integration dashboard**
 - Active integrations per workspace; integration messages per week.
 - Integration alert → human comment rate (are signals being acted on?).
 - Integration action click-through and completion (if actions are trackable).
@@ -369,7 +369,7 @@ A practical plan is to instrument **events** consistently across clients (deskto
      - Threading everything could make the channel feel “quiet” and reduce ambient awareness.
 
 4) **Make outcomes explicit (Loop A + Loop B)**  
-   **User/team job:** “Close the loop—turn conversation into a decision/next step that’s findable later.”
+   **User/team job:** “Close the loop-turn conversation into a decision/next step that’s findable later.”
 
    - **Hypothesis**: If Slack makes it trivial to mark threads as resolved/decided and to capture a lightweight summary, then coordination outcomes increase without increasing message volume.
    - **Concrete product bet(s)**:
@@ -409,7 +409,7 @@ A practical plan is to instrument **events** consistently across clients (deskto
 
 ---
 
-## 9) Notes for future teardown iterations (not claims)
+## 9) Notes for future teardown iterations 
 - Deeper treatment of admin/compliance, permissions, and enterprise controls.
 - More detail on onboarding flows and templates.
 - Comparative teardown vs Teams for enterprise deployment and meeting integration.
