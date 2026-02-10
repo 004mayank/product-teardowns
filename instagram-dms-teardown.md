@@ -1,6 +1,6 @@
-# Instagram DMs (Messaging) — Teardown (V3)
+# Instagram DMs (Messaging)
 
-## 0) What this teardown is (scope)
+## 
 This teardown focuses on **Instagram DMs** as a product: the inbox, message requests, 1:1 and group threads, and the set of adjacent surfaces that *route intent into conversations* (Story reply, Send-to share sheet, profile “Message” entry).
 
 **Not in scope (unless explicitly relevant):** Feed ranking, Reels algorithm, Ads, Marketplace, full Creator monetization.
@@ -30,27 +30,27 @@ Instagram DMs are the **private (and semi-private) conversation layer** built on
 ## 2) User segmentation (who uses DMs and why)
 Think less “demographics” and more “moments + stakes”.
 
-### Segment A — Friends & micro-groups (high frequency)
+### Segment A - Friends & micro-groups (high frequency)
 - **Moment:** sharing funny/relatable content; making plans; staying close.
 - **Stakes:** low; speed and expression matter.
 - **Behaviors:** group threads, reactions, voice notes, fast back-and-forth.
 
-### Segment B — Lightweight reach-outs (medium frequency)
+### Segment B - Lightweight reach-outs (medium frequency)
 - **Moment:** “I want to DM someone I know of (mutuals) / I’m curious.”
 - **Stakes:** medium; fear of rejection/awkwardness.
 - **Behaviors:** Story replies, Reel shares with short text.
 
-### Segment C — Creator ↔ fan / public accounts (high inbound, low reply capacity)
+### Segment C - Creator ↔ fan / public accounts (high inbound, low reply capacity)
 - **Moment:** fans react, ask questions, propose collabs; creators triage.
 - **Stakes:** higher; reputation + safety.
 - **Behaviors:** message requests management, filtering, sometimes quick replies.
 
-### Segment D — Small businesses (high intent, transactional)
+### Segment D - Small businesses (high intent, transactional)
 - **Moment:** inquiries, pricing, availability; support.
 - **Stakes:** higher; response time and trust matter.
 - **Behaviors:** quick back-and-forth, sharing links/photos, sometimes moving off-platform.
 
-### Segment E — Bad actors / spam / scams (adversarial)
+### Segment E - Bad actors / spam / scams (adversarial)
 - **Moment:** cold outreach, impersonation, phishing, payment fraud.
 - **Stakes:** high for integrity.
 - **Behaviors:** high-volume requests; social engineering.
@@ -70,7 +70,7 @@ The core design pattern: **message objects carry context** (the Story/Reel/post)
 
 ## 4) Core loops (with triggers and failure modes)
 
-### Loop A — Discovery → first DM → ongoing relationship
+### Loop A - Discovery → first DM → ongoing relationship
 1. User discovers someone via profile, comments, mutuals.
 2. Entry via **Message** or contextual reply (Story).
 3. Recipient sees it in Inbox or Requests.
@@ -82,7 +82,7 @@ The core design pattern: **message objects carry context** (the Story/Reel/post)
 - lands in Requests and is never seen; safety friction blocks legitimate new connections.
 - first message has insufficient context; recipient doesn’t reciprocate.
 
-### Loop B — Content consumption → share/reply → conversation
+### Loop B - Content consumption → share/reply → conversation
 1. User views a Story/Reel/post.
 2. Uses **Send-to** or Story reply.
 3. Content appears anchored in thread.
@@ -92,7 +92,7 @@ The core design pattern: **message objects carry context** (the Story/Reel/post)
 - recipient suggestions feel wrong → user doesn’t share.
 - too much sharing without conversation → threads become “broadcast dumps”.
 
-### Loop C — Group chat energy → entertainment + coordination → retention
+### Loop C - Group chat energy → entertainment + coordination → retention
 1. Group forms around friends/event.
 2. Members share media and logistics.
 3. Reactions + quick replies keep it alive.
@@ -102,7 +102,7 @@ The core design pattern: **message objects carry context** (the Story/Reel/post)
 - notification overload; groups mute/lose salience.
 - low participation; group becomes a one-person share channel.
 
-### Loop D — Creator inbound → triage → relationship reinforcement
+### Loop D - Creator inbound → triage → relationship reinforcement
 1. Fans DM via Story replies/profile.
 2. Creator receives high inbound volume.
 3. Creator replies to a subset; fans feel seen.
@@ -205,7 +205,7 @@ A reasonable product north star for DMs is:
 
 ---
 
-## 8) Key risks & tradeoffs (expanded)
+## 8) Key risks & tradeoffs 
 - **Safety vs openness:** requests gating protects users but blocks legitimate discovery.
 - **Spam/scams adapt quickly:** adversaries exploit social proof and urgency.
 - **Creator scale:** inbound volume demands better triage tools.
@@ -231,7 +231,7 @@ A reasonable product north star for DMs is:
 ---
 
 ## 10) Competitive comparison (what Instagram DMs win/lose on)
-This isn’t a feature checklist—it’s “which system produces more *replied-to* conversations” and at what cost.
+This isn’t a feature checklist-it’s “which system produces more *replied-to* conversations” and at what cost.
 
 ### Snapchat
 - **Win vs IG:** camera-first, ephemeral norms, lower-pressure outreach → higher casual reply rates.
@@ -274,29 +274,29 @@ A practical mental model: Instagram DMs are three coupled systems.
 - **Spam/abuse pipeline:** detection → friction → action (rate limits, shadow bans, blocks).
 - **User controls:** block/report/mute + “who can message me” settings.
 
-### 11.4 Notifications (retention dial)
+### 11.4 Notifications 
 - Notifications convert “message sent” into “message replied.”
 - Tradeoff: more pings boosts replies but increases fatigue; good systems learn personal thresholds.
 
 ---
 
 ## 12) V3 roadmap (3–5 bets tied to metrics)
-### Bet 1 — Requests: "wanted vs spam" separation + clearer previews
+### Bet 1 - Requests: "wanted vs spam" separation + clearer previews
 - **Ship:** two-lane Requests (Likely Known / Likely Spam), preview context (mutuals, where you saw them), faster bulk actions.
 - **Moves:** Requests seen rate ↑, accept rate ↑, block-after-first-message ↓.
 
-### Bet 2 — Share sheet: contextual ranking + "send with prompt"
+### Bet 2 - Share sheet: contextual ranking + "send with prompt"
 - **Ship:** per-content embedding similarity to rank recipients; optional prompt chips (“this reminded me of…”, “thoughts?”).
 - **Moves:** share-to-DM conversion ↑, first conversation success ↑.
 
-### Bet 3 — Conversation quality: reciprocation nudges
+### Bet 3 - Conversation quality: reciprocation nudges
 - **Ship:** lightweight "reply starters" in early thread moments; reduce cold-open burden.
 - **Moves:** replied-to initiations ↑, 2-way exchange within 48h ↑.
 
-### Bet 4 — Creator inbox: priority queue + triage tooling
+### Bet 4 - Creator inbox: priority queue + triage tooling
 - **Ship:** filters (fans, verified, recent engagers), quick replies, SLA cues.
 - **Moves:** creator reply rate ↑, creator retention ↑, spam load ↓.
 
-### Bet 5 — Group health: digest + governance primitives
+### Bet 5 - Group health: digest + governance primitives
 - **Ship:** configurable digests, "mute with summary", lightweight roles/controls.
 - **Moves:** group survival D+7/D+28 ↑, notification fatigue ↓.
