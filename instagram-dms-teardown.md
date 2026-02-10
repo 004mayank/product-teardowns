@@ -1,4 +1,4 @@
-# Instagram DMs (Messaging) — Teardown (V2)
+# Instagram DMs (Messaging) — Teardown (V3)
 
 ## 0) What this teardown is (scope)
 This teardown focuses on **Instagram DMs** as a product: the inbox, message requests, 1:1 and group threads, and the set of adjacent surfaces that *route intent into conversations* (Story reply, Send-to share sheet, profile “Message” entry).
@@ -214,24 +214,89 @@ A reasonable product north star for DMs is:
 
 ---
 
-## 9) Opportunity areas / experiment directions (V2 hypotheses)
+## 9) Opportunity areas / experiment directions (refined)
 1) **Requests quality gating**
-   - Better separation of “likely wanted” vs “likely spam” requests; clearer previews.
+   - Separate “likely wanted” vs “likely spam” requests; improve previews + explainability.
 2) **Share sheet ranking improvements**
-   - Optimize for “who would you send *this* to” (contextual similarity), not just recent chats.
-3) **Conversation-start templates**
-   - Lightweight prompts when sharing (“ask a question”, “react”, “poll”) to increase reciprocation.
+   - Optimize for “who would you send *this* to” (contextual similarity), not just recency.
+3) **Conversation-start scaffolds**
+   - Lightweight prompts when sharing (“ask”, “react”, “vote”) to increase reciprocation.
 4) **Creator inbox triage**
-   - Filters/labels, priority queueing, quick replies; protect against overload.
+   - Priority queueing, filters/labels, quick replies; protect against overload.
 5) **Group health controls**
-   - Nudges for participation, better mute/digest, lightweight governance.
+   - Nudges for participation, better digest/mute, lightweight governance.
 6) **Safety UX**
-   - Faster block/report flows, clearer boundaries, education for teens.
+   - Faster block/report, clearer boundaries, teen education + defaults.
 
 ---
 
-## 10) What to do next (to reach V3)
-To move this teardown to V3, we’d add:
-- A sharper **competitive comparison** (Snap/WhatsApp/TikTok/iMessage) tied to the metric tree.
-- A **systems-level view**: ranking services, request classification, integrity pipeline, notification strategy.
-- A prioritized **roadmap** with 3–5 bets and expected metric impact.
+## 10) Competitive comparison (what Instagram DMs win/lose on)
+This isn’t a feature checklist—it’s “which system produces more *replied-to* conversations” and at what cost.
+
+### Snapchat
+- **Win vs IG:** camera-first, ephemeral norms, lower-pressure outreach → higher casual reply rates.
+- **IG advantage:** richer content graph (Reels/Stories) as conversation objects; stronger creator/public identity context.
+- **Takeaway:** IG’s opportunity is to keep *low-stakes* starts (Snap vibe) while preserving identity + content anchoring.
+
+### WhatsApp
+- **Win vs IG:** phone-number graph + high deliverability; strong reliability/utility; end-to-end encryption positioning.
+- **IG advantage:** discovery + public social proof; faster “message someone you don’t already have.”
+- **Takeaway:** IG should lean into discovery-to-DM, while borrowing WA’s trust cues (delivery, safety, clarity).
+
+### iMessage
+- **Win vs IG:** default status + OS-level presence; near-universal reach in iOS markets.
+- **IG advantage:** cross-platform, identity/content context, creator + communities adjacency.
+- **Takeaway:** IG competes by being the “social relationship layer,” not the default transport.
+
+### TikTok DMs
+- **Win vs IG:** algorithmic content gravity; sharing is constant.
+- **IG advantage:** established friend graph + ongoing relationships; broader creation + social surfaces.
+- **Takeaway:** protect the share→conversation loop; don’t become a one-way share dump.
+
+**Implication for the metric tree:** the most defensible metric is not messages sent, but **initiations that get a reply** and **threads that sustain**.
+
+---
+
+## 11) Systems-level view (how the product likely works)
+A practical mental model: Instagram DMs are three coupled systems.
+
+### 11.1 Entry routing (where messages come from)
+- **Story replies / Send-to shares / Profile Message CTA / Search compose** all funnel into thread creation.
+- Goal: reduce friction *without* inviting abuse.
+
+### 11.2 Inbox + share-sheet ranking (attention allocation)
+- **Inbox ranking:** chooses which threads you see first (recency + predicted importance + relationship strength + unread count + prior reply probability).
+- **Share-sheet ranking:** chooses who you’ll send to (recent, close friends, interaction similarity, group propensity).
+- Failure mode: wrong ranking feels socially risky → users stop sharing/DMing.
+
+### 11.3 Integrity & consent boundary (Requests + enforcement)
+- **Requests classifier:** decides if inbound should be gated, warned, limited, or blocked.
+- **Spam/abuse pipeline:** detection → friction → action (rate limits, shadow bans, blocks).
+- **User controls:** block/report/mute + “who can message me” settings.
+
+### 11.4 Notifications (retention dial)
+- Notifications convert “message sent” into “message replied.”
+- Tradeoff: more pings boosts replies but increases fatigue; good systems learn personal thresholds.
+
+---
+
+## 12) V3 roadmap (3–5 bets tied to metrics)
+### Bet 1 — Requests: "wanted vs spam" separation + clearer previews
+- **Ship:** two-lane Requests (Likely Known / Likely Spam), preview context (mutuals, where you saw them), faster bulk actions.
+- **Moves:** Requests seen rate ↑, accept rate ↑, block-after-first-message ↓.
+
+### Bet 2 — Share sheet: contextual ranking + "send with prompt"
+- **Ship:** per-content embedding similarity to rank recipients; optional prompt chips (“this reminded me of…”, “thoughts?”).
+- **Moves:** share-to-DM conversion ↑, first conversation success ↑.
+
+### Bet 3 — Conversation quality: reciprocation nudges
+- **Ship:** lightweight "reply starters" in early thread moments; reduce cold-open burden.
+- **Moves:** replied-to initiations ↑, 2-way exchange within 48h ↑.
+
+### Bet 4 — Creator inbox: priority queue + triage tooling
+- **Ship:** filters (fans, verified, recent engagers), quick replies, SLA cues.
+- **Moves:** creator reply rate ↑, creator retention ↑, spam load ↓.
+
+### Bet 5 — Group health: digest + governance primitives
+- **Ship:** configurable digests, "mute with summary", lightweight roles/controls.
+- **Moves:** group survival D+7/D+28 ↑, notification fatigue ↓.
