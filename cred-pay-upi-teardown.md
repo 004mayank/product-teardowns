@@ -1,10 +1,11 @@
-# CRED Pay (UPI) — Product Teardown (V2)
+# CRED Pay (UPI) — Product Teardown (V3)
 
 > Lens: Product Manager • Scope: **publicly observable behavior + first-principles inference** (no internal CRED data claims)
 
 **Version log**
 - **V1 (2026-02-15):** Initial teardown: segments, JTBD, loops, funnels, metrics, instrumentation, 30–60–90.
-- **V2 (2026-02-16):** Added: competitive positioning, concrete user journeys (offline + online), explicit payment state machine + edge cases, sharper North Star + input metrics, and a prioritized opportunity stack.
+- **V2 (2026-02-16):** Added: competitive positioning, user journeys (offline + online), state machine + edge cases, tighter North Star + input metrics.
+- **V3 (2026-02-17):** Deepened **offline scan & pay**: UX checklist, trust/receipt system, pending & reversal handling, offline-specific metrics/instrumentation, and an offline-first opportunity stack.
 
 ---
 
@@ -177,6 +178,44 @@ Key metric:
 
 **Why this matters:** most support tickets come from “did it go through?” not from “I couldn’t pay.”
 
+#### V3 expansion: offline UX checklist (what “premium” actually means)
+Offline UPI is a **trust + speed** problem under time pressure (merchant waiting, noisy environment, flaky network). A premium app wins by reducing *payment anxiety*.
+
+**A) Scanner entry**
+- Fast entry point (home shortcut/quick action); open camera quickly
+- Torch toggle; haptic on QR lock; clear “Scan UPI QR” guidance
+
+**B) Merchant identity (anti-scam by design)**
+- Merchant display name (primary)
+- VPA/handle (secondary)
+- If available: “You paid here before” marker, category/city
+- Use “Verified” badges only if backed by real verification
+
+**C) Amount entry**
+- Big numeric keypad; show currency clearly
+- Distinguish **static QR (user enters amount)** vs **dynamic QR (amount prefilled/locked)**
+- Make editing obvious; prevent accidental extra zeros with gentle guardrails
+
+**D) Funding source selection**
+- Default to last successful bank/account for this merchant
+- If last-used bank shows higher failure rates (rail telemetry), suggest switching (without alarming language)
+
+**E) Authentication (PIN)**
+- Minimal distractions; predictable cancel/back
+
+**F) Confirmation (the most important screen)**
+Success screen must be **boring and definitive**:
+- Status, merchant, amount, timestamp
+- UTR/reference id
+- Share/save receipt
+- Rewards appear *below* confirmation (secondary)
+
+**Offline metrics to watch**
+- scan → success conversion
+- p95 time-to-final-state (offline)
+- duplicate attempt rate (panic retries)
+- support contacts per 1k offline payments
+
 ### 7.2 Online intent — “fast callback” happy path
 **Goal:** minimal app-switch pain + clear return-to-merchant.
 
@@ -216,6 +255,20 @@ Your UX should map 1:1 to a state model users can understand.
 - Callback not received but debit happened
 - Duplicate payment attempts
 - Collect request expiry (if used)
+
+#### V3 expansion: pending/reversal handling (offline trust)
+Most offline trust loss comes from **Pending/Unknown** outcomes.
+
+Design rules:
+- If state is **Processing/Unknown** beyond a short threshold, show: “Payment is processing. Don’t pay again yet.”
+- Provide a **Check status** action and link to the payment in **History**.
+- If user insists on retry, put it behind a friction step (“Only retry if merchant confirms they haven’t received it”).
+- On “debited but not received” scenarios, emphasize: receipt + UTR and an honest resolution SLA (auto-reversal window, where applicable).
+
+Offline metrics:
+- pending rate + pending-to-success rate
+- duplicate payments per 1k attempts
+- ‘where is my money’ help opens per 1k payments
 
 ---
 
@@ -281,13 +334,25 @@ Guardrail events:
 - `risk_blocked(reason)`
 - `support_flow_opened(category)`
 
+#### V3 expansion: offline instrumentation additions
+- `scan_opened(entry_point)`
+- `scan_qr_detected(qr_type)`
+- `merchant_identity_shown(has_verified_badge, has_last_paid)`
+- `amount_entered(amount_bucket, prefilled)`
+- `funding_source_selected(source_type, is_default)`
+- `pay_pending_shown(time_ms_since_auth)`
+- `pay_status_checked(source)`
+- `pay_duplicate_attempt_blocked(reason)`
+- `receipt_shared(channel)`
+
 ---
 
 ## 12) What I would do as the PM (30–60–90)
-### First 30 days: reliability + clarity
-- Build a **failure taxonomy dashboard** and fix top 2 failure modes.
-- Improve “pending/processing” and “confirmation” states to reduce double-pay attempts.
-- Ship smarter retry UX (when safe) + clearer bank outage messaging.
+### First 30 days: reliability + clarity (offline-first)
+- Build an **offline failure taxonomy dashboard** (by bank/rail/device/network) and fix top 2 failure modes.
+- Improve “pending/processing” and “confirmation” states to reduce **panic retries** and double-pay attempts.
+- Ship **receipt-first** confirmation UX (UTR, merchant identity, shareable receipt).
+- Ship safer retry UX (bank-aware suggestions + guardrails) + clearer outage messaging.
 
 ### 60 days: retention via repeat payments
 - Add “repeat last payment” shortcuts for known merchants/contacts (where policy allows).
