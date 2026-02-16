@@ -1,6 +1,10 @@
-# CRED Pay (UPI) — Product Teardown
+# CRED Pay (UPI) — Product Teardown (V2)
 
 > Lens: Product Manager • Scope: **publicly observable behavior + first-principles inference** (no internal CRED data claims)
+
+**Version log**
+- **V1 (2026-02-15):** Initial teardown: segments, JTBD, loops, funnels, metrics, instrumentation, 30–60–90.
+- **V2 (2026-02-16):** Added: competitive positioning, concrete user journeys (offline + online), explicit payment state machine + edge cases, sharper North Star + input metrics, and a prioritized opportunity stack.
 
 ---
 
@@ -66,15 +70,30 @@ Translate CRED Pay’s promise into operational metrics:
 
 ---
 
-## 4) Core loops (how UPI becomes a product)
-### 4.1 Payment loop (the base loop)
+## 4) Competitive positioning (what’s actually differentiable in India UPI)
+UPI competitors (GPay, PhonePe, Paytm, bank apps, merchant apps) already win on **distribution + default choice**. So CRED Pay must win on a different axis.
+
+### Where “commodity” ends
+- **Send money / scan & pay**: largely parity.
+- **Reliability and recovery**: still a product surface (error clarity, pending handling, safe retries).
+- **Receipts + trust cues**: huge impact on anxiety.
+- **Habit layer**: rewards, streaks, smart “repeat this payment,” contextual shortcuts.
+
+### A plausible wedge for CRED
+- *“Premium payments”* = **lower anxiety + better confirmation + better history + better repeat flows**
+- Then use CRED’s existing high-intent traffic (bills/rewards) as distribution.
+
+---
+
+## 5) Core loops (how UPI becomes a product)
+### 5.1 Payment loop (the base loop)
 **Need to pay → choose pay method → execute payment → confirm → receipt**
 
 Key metrics:
 - Attempt → success conversion
 - Repeat payment rate within 7 days
 
-### 4.2 Rewards reinforcement loop (differentiation loop)
+### 5.2 Rewards reinforcement loop (differentiation loop)
 **Pay → receive reward feedback → accrue progress (coins/points/streak) → seek next payment**
 
 Key metrics:
@@ -82,14 +101,14 @@ Key metrics:
 - Reward redemption rate
 - Incremental lift: payments/user/week vs control (holdout essential)
 
-### 4.3 Merchant familiarity loop (offline stickiness)
+### 5.3 Merchant familiarity loop (offline stickiness)
 **Pay at known merchant → saved/recognized merchant → faster next checkout → preference forms**
 
 Key metrics:
 - Returning-merchant share
 - Median time-to-pay for returning merchants
 
-### 4.4 “Financial hub” loop (cross-surface re-entry)
+### 5.4 “Financial hub” loop (cross-surface re-entry)
 **Open CRED for bills/rewards → see Pay prompts or shortcuts → pay → stay in ecosystem**
 
 Key metrics:
@@ -98,8 +117,8 @@ Key metrics:
 
 ---
 
-## 5) Funnels (explicit)
-### 5.1 Activation funnel (UPI enablement)
+## 6) Funnels (explicit)
+### 6.1 Activation funnel (UPI enablement)
 1. Discover Pay entry point
 2. Choose “set up UPI”
 3. Link bank account (or select bank)
@@ -117,7 +136,7 @@ Drop-off hotspots to expect:
 - PIN set/reset friction
 - App-switch / callback reliability
 
-### 5.2 First-time offline scan funnel
+### 6.2 First-time offline scan funnel
 1. Scan QR
 2. Merchant validation shown (name/handle)
 3. Enter amount (or prefilled)
@@ -129,7 +148,7 @@ Key metrics:
 - Scan → success conversion
 - Failure reason distribution
 
-### 5.3 Online checkout funnel
+### 6.3 Online checkout funnel
 1. Merchant initiates UPI intent
 2. App chooser → CRED selected
 3. Confirm payment
@@ -140,7 +159,67 @@ Key metric:
 
 ---
 
-## 6) Product strategy: where CRED can win (despite UPI commoditization)
+## 7) Concrete user journeys (what “great” looks like)
+### 7.1 Offline scan & pay — “low anxiety” happy path
+**Goal:** user never doubts merchant identity or final outcome.
+
+1. Entry: open scanner (home shortcut / quick action)
+2. Scan QR
+3. **Merchant identity block** (merchant name + VPA/handle + category/brand cues if available)
+4. Amount entry (and tip/split only if relevant)
+5. Confirm + choose account/UPI id (default smartly, but editable)
+6. PIN
+7. **Success screen** (must be unambiguous)
+   - Amount, merchant, status, timestamp
+   - UTR/reference id
+   - Share/download receipt
+8. Post-success: reward shown as secondary reinforcement
+
+**Why this matters:** most support tickets come from “did it go through?” not from “I couldn’t pay.”
+
+### 7.2 Online intent — “fast callback” happy path
+**Goal:** minimal app-switch pain + clear return-to-merchant.
+
+1. User taps “Pay via UPI” on merchant
+2. App chooser opens → user picks CRED
+3. CRED shows merchant + amount + method
+4. PIN
+5. CRED confirms success
+6. **Auto-return to merchant** with success callback
+
+**Critical metric:** success-with-callback rate (success in app but merchant never receives callback is a trust killer).
+
+---
+
+## 8) Payment state machine (product-facing, not internal)
+Your UX should map 1:1 to a state model users can understand.
+
+### States
+- **Created** (attempt initiated)
+- **Authorized** (PIN success)
+- **Processing** (rail confirmation pending)
+- **Success** (final)
+- **Failed** (final, with reason)
+- **Reversed/Refunded** (money returned)
+- **Unknown** (timeout/partial signals)
+
+### UX rules
+- Never show “Success” unless you have high-confidence confirmation.
+- If **Unknown/Processing** > X seconds, show:
+  - what to do next (wait vs check history)
+  - when it will resolve (SLA)
+  - how to avoid double pay (disable immediate blind retry)
+
+### Edge cases you must design explicitly
+- Bank downtime / PSP outage
+- User backgrounded app mid-flow
+- Callback not received but debit happened
+- Duplicate payment attempts
+- Collect request expiry (if used)
+
+---
+
+## 9) Product strategy: where CRED can win (despite UPI commoditization)
 UPI is “table stakes.” Differentiation usually comes from one of these wedges:
 
 1. **Reliability leadership** in hard-to-handle cases
@@ -160,22 +239,8 @@ UPI is “table stakes.” Differentiation usually comes from one of these wedge
 
 ---
 
-## 7) The (likely) architecture at a product level (non-internal, conceptual)
-Even without internal diagrams, UPI products typically decompose into:
-
-- **Client payment orchestrator** (intent handling, QR scan, confirmation)
-- **Payments backend** (order id, state machine, retries)
-- **PSP/TPAP integration layer** (UPI rails)
-- **Risk + integrity** (device trust, velocity limits, abuse/spam)
-- **Rewards ledger** (earn, redemption, anti-fraud)
-- **Receipts/notifications** (push, in-app receipts)
-
-Important PM note: *The UX must map cleanly to the payment state machine.* Confusing states destroy trust.
-
----
-
-## 8) Key product trade-offs
-### 8.1 Rewards vs margin vs fraud
+## 10) Key product trade-offs
+### 10.1 Rewards vs margin vs fraud
 - More rewards → more acquisition/retention
 - But also → fraud incentives and unit-econ burn
 
@@ -183,14 +248,14 @@ What to do:
 - Use **holdouts** and **cohort-based reward curves** (new users vs power users)
 - Add **fraud-aware reward gating** (velocity, device trust) without breaking UX
 
-### 8.2 “Delight” vs “certainty”
+### 10.2 “Delight” vs “certainty”
 Payments require certainty. Too much animation/gamification around the success moment can increase anxiety.
 
 Design principle:
 - Success screen must prioritize **merchant name, amount, status, reference id**.
 - Rewards should appear as a secondary confirmation, not the primary.
 
-### 8.3 App-switch minimization vs compliance
+### 10.3 App-switch minimization vs compliance
 UPI flows sometimes require switching to bank apps or system prompts.
 
 PM goal:
@@ -198,13 +263,14 @@ PM goal:
 
 ---
 
-## 9) Instrumentation: event taxonomy (PM-ready)
+## 11) Instrumentation: event taxonomy (PM-ready)
 A minimal, analysis-friendly schema:
 
 - `pay_entry_impression(source)`
 - `upi_setup_started(step)` / `upi_setup_completed`
 - `pay_attempt_created(mode, merchant_type)`
 - `pay_auth_started` / `pay_auth_completed(status)`
+- `pay_state_changed(from, to, reason)`
 - `pay_result(status, failure_reason)`
 - `pay_receipt_viewed`
 - `pay_retry_clicked(reason_shown)`
@@ -217,7 +283,7 @@ Guardrail events:
 
 ---
 
-## 10) What I would do as the PM (30–60–90)
+## 12) What I would do as the PM (30–60–90)
 ### First 30 days: reliability + clarity
 - Build a **failure taxonomy dashboard** and fix top 2 failure modes.
 - Improve “pending/processing” and “confirmation” states to reduce double-pay attempts.
@@ -235,7 +301,7 @@ Guardrail events:
 
 ---
 
-## 11) Risks and failure modes
+## 13) Risks and failure modes
 - **Bank downtime / rail volatility** → trust damage; needs proactive comms + graceful degradation.
 - **Fraud/reward abuse** → forces harsh gating; can kill UX if reactive.
 - **UPI intent competition** → app-chooser share is hard; requires clear differentiation.
@@ -243,7 +309,7 @@ Guardrail events:
 
 ---
 
-## 12) Open questions (for a deeper teardown)
+## 14) Open questions (for a deeper teardown)
 1. What are CRED Pay’s primary entry points today (home, bills, scan, deep links)?
 2. How does CRED handle “pending” vs “success” confirmations (and retries)?
 3. What’s the reward model (deterministic vs probabilistic) and how is abuse controlled?
@@ -251,11 +317,15 @@ Guardrail events:
 
 ---
 
-## Appendix: A crisp North Star proposal
-**North Star:** Successful payments per weekly active user (SP/WAU), segmented by offline vs online.
+## Appendix: A crisp North Star proposal (tightened)
+**North Star:** *Weekly successful payments per weekly active user* (WSP/WAU), split by **offline** vs **online intent**.
 
-Supporting metrics:
+Input metrics (things teams can directly move):
 - Success rate, p95 time-to-success
-- Repeat payer retention (4-week)
+- Success-with-callback rate (online)
+- Repeat pay rate (7-day) to same merchant/contact
 - Support contacts per 1k payments
-- Fraud/chargeback/abuse indicators (as defined by risk)
+
+Guardrails:
+- Fraud/abuse indicators (as defined by risk)
+- Unit economics per incremental payment (reward burn vs incremental frequency)
