@@ -2,8 +2,8 @@
 
 **Product:** Skyscanner (Flights marketplace metasearch)
 **Author:** Mayank Malviya
-**Date:** 20 Feb 2026
-**Status:** v2 — end-to-end flow + concrete UX patterns/copy + ranking hypotheses + trust pack spec + experiment ideas
+**Date:** 21 Feb 2026
+**Status:** v3 — minor polish + clarified framing, keeping v2 structure (flow, UX patterns/copy, ranking hypotheses, Trust Pack spec, experiments)
 
 > Notes on sources: This teardown is based on product understanding and common Skyscanner / metasearch patterns; treat UI labels and exact copy below as *representative*, not pixel-perfect.
 
@@ -371,7 +371,7 @@ Hypotheses:
 
 ---
 
-## 17) Open questions for v3
+## 17) Open questions for v4
 1. What exactly are Skyscanner’s “Best” ranking ingredients (price/duration/stops/CO₂/partner quality)?
 2. How do they operationalize and message mismatch, and what controls exist per partner?
 3. How are baggage/refund rules normalized across partners?
