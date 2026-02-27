@@ -1,139 +1,335 @@
-# LinkedIn — Product Teardown (V1)
+# Teardown: LinkedIn — Core Social Network → Career Marketplace
 
-*(Scope: core LinkedIn experience — identity/profile, network graph, feed, engagement, messaging, jobs discovery. Not deep into ads/learning/courses.)*
+**Product:** LinkedIn (professional identity + network + feed + jobs + messaging)
+**Author:** Mayank Malviya
+**Date:** 27 Feb 2026
+**Status:** v2 — upgraded to full teardown format (JTBD, funnel drop-offs, metrics, 30–60–90 priorities, experiment backlog)
 
-## 0) One-liner
-LinkedIn is a professional identity + network graph that turns **career intent** (hire, get hired, learn, sell) into a **feed + search** product with high-trust profiles and workflow-driven surfaces (jobs, messaging, company pages).
-
----
-
-## 1) Who it’s for (personas)
-
-1) **Job seeker**
-- wants: discover roles, signal openness, get referrals, apply fast
-- pain: low response, spammy roles, noisy feed
-
-2) **Recruiter / hiring manager**
-- wants: search/filter talent, outreach at scale, pipeline management
-- pain: low reply rates, incomplete profiles, compliance
-
-3) **Knowledge / career builder**
-- wants: build reputation, learn, stay updated, grow network
-- pain: content fatigue, engagement incentives
-
-4) **Seller / BD (social selling)**
-- wants: identify buyers, warm intros, nurture leads via content + DMs
-- pain: outreach limits, trust, signal vs noise
+> Notes on sources: This teardown is based on product understanding and common LinkedIn patterns; UI labels and exact ranking behavior below are *representative*, not official.
 
 ---
 
-## 2) Core loops
-
-### 2.1 Identity → discovery → opportunity loop (career loop)
-1) User creates/updates **profile** (skills, roles, education)
-2) LinkedIn increases distribution in **search + recommendations**
-3) Recruiters/users view profile → connection requests / messages
-4) Opportunities (interviews, jobs) → user invests more in profile
-
-### 2.2 Network graph loop
-1) Import contacts / connect with colleagues
-2) Graph grows → better recommendations (people, jobs, content)
-3) More utility → more connections
-
-### 2.3 Feed loop
-1) Create content (post/comment)
-2) Engagement from network increases reach
-3) Creator sees value → posts more
-4) Audience gets updates/opinions → returns daily
+## TL;DR (what matters)
+- LinkedIn is best understood as a **trusted identity graph** that converts **career intent** (hire / get hired / sell / build reputation) into daily habit via a **feed + notifications** layer.
+- The *hard product problem* isn’t “a social feed”—it’s balancing a **high-trust marketplace** (recruiting + jobs + outreach) with **engagement incentives** that naturally drift toward low-signal content.
+- The core tension: **open distribution** (creators + virality) vs **professional norms + anti-spam** (invitations, DMs, InMail).
+- If you’re building a competitor, the moat isn’t UI polish—it’s the **profile graph quality** (verified-ish career history), **network effects**, and **recruiter workflow adoption**.
 
 ---
 
-## 3) Main surfaces (what the user actually does)
-
-### 3.1 Onboarding
-- sign-up → headline, role, company, location
-- quick prompts: add education, skills, upload resume (optional)
-- suggestions: connect with coworkers/classmates
-
-### 3.2 Profile (the “resume + reputation” page)
-- summary/headline, experience, education, skills
-- endorsements/recommendations (social proof)
-- featured content, activity
-- recruiter views: “open to work”, contact info (sometimes gated)
-
-### 3.3 My Network
-- connection requests, suggested people, growth prompts
-- graph expansion via shared company/school
-
-### 3.4 Feed
-- ranked feed (people + company pages)
-- post types: text, link, image, video, carousel
-- actions: like/react, comment, repost, follow
-- notifications drive return visits
-
-### 3.5 Search
-- global search entry point
-- people, jobs, companies, posts
-- filters: location, industry, seniority, etc.
-
-### 3.6 Messaging
-- DMs with connection-based affordances
-- requests/inbox separation (anti-spam)
-- “InMail” (paid/recruiter) as a monetized messaging lane
-
-### 3.7 Jobs
-- job recommendations + search
-- apply flows (Easy Apply vs external)
-- saved jobs, alerts
+## 1) What LinkedIn is (in one line)
+A **professional identity + network graph** that turns real-world career relationships into a **discovery + communication platform**, and monetizes primarily through **Talent Solutions (recruiting)**, **Premium subscriptions**, and **B2B advertising**.
 
 ---
 
-## 4) What LinkedIn is optimizing (North Stars)
+## 2) The user’s job-to-be-done (JTBD)
+**Primary JTBD:** “Help me make career progress by increasing surface area for opportunities—credibly and efficiently.”
 
-- **DAU/WAU retention** (feed + notifications)
-- **Profile completeness** (improves match quality)
-- **Network density** (connections per active user)
-- **Marketplace liquidity**
-  - recruiter searches → qualified candidates → reply/apply rates
-- **Monetization**
-  - Talent solutions (recruiter seats, job postings)
-  - Premium subscriptions (InMail, insights)
-  - Ads (B2B)
+**Segment JTBDs (most important):**
+- **Job seeker:** “Find roles worth applying to and get responses.”
+- **Recruiter / hiring manager:** “Find and contact qualified candidates at scale with high reply rates.”
+- **Creator / career builder:** “Build reputation and stay top-of-mind in my industry.”
+- **Seller / BD:** “Identify buyers and convert warm attention into meetings.”
 
 ---
 
-## 5) Key product decisions (notable tradeoffs)
+## 3) The core funnel (macro)
+LinkedIn is multiple funnels sharing one graph. The most universal macro funnel:
 
-1) **Real identity + professional norms**
-- higher trust than most social apps, enables hiring workflows
-- tradeoff: higher friction onboarding and moderation expectations
+**A. Identity setup** → **B. Graph build** → **C. Daily habit (feed/notifications)** → **D. Intent surfaces (jobs/search/messages)** → **E. Outcome (hire / get hired / meeting / influence)**
 
-2) **Feed engagement vs career utility**
-- feed drives daily habit
-- tradeoff: content incentives can drift toward “engagement bait”
-
-3) **Messaging as a monetization surface**
-- InMail / restricted outreach reduces spam and funds the marketplace
-- tradeoff: can feel paywalled and increases cold outreach
-
-4) **Jobs as an intent goldmine**
-- job seeking is high-intent; fuels monetization
-- tradeoff: requires strong matching + anti-scam controls
+A practical way to see it:
+- **Activation** = profile completeness + first 10–30 relevant connections.
+- **Retention** = feed/notifications returning weekly.
+- **Monetization** = recruiter seats + job posts + InMail/Premium + ads.
 
 ---
 
-## 6) Competitive moats
-
-- **Profile graph** (identity + history + endorsements)
-- **Network effects** (connections improve relevance)
-- **Recruiter adoption** (workflow + tooling)
-- **Data advantage** (career trajectories, skills graph)
+## 4) Information architecture (IA)
+Typical primary surfaces:
+- **Home / Feed**
+- **My Network** (invites, suggestions)
+- **Jobs**
+- **Messaging**
+- **Notifications**
+- **Search** (people, jobs, companies, posts)
+- **Profile** (your identity + proof)
 
 ---
 
-## 7) Open questions / V2 targets
+## 5) End-to-end flow (core experiences)
 
-- How is the feed ranking balancing: recency vs relationship vs topic?
-- What are the key anti-spam levers in messaging and connection requests?
-- How does jobs matching work conceptually (skills, title, seniority, location, company)?
-- Which workflows to deepen next: recruiter funnel, creator tools, or job seeker conversion?
+### 5.1 Onboarding & activation
+**System goal:** quickly establish *who you are* and *who you should see*.
+
+Common steps/patterns:
+- Role/title, location, current company, education
+- Prompt: add skills, add experience, upload resume (optional)
+- Prompt: connect with coworkers/classmates; import contacts
+
+**Key activation bet:** a partially-complete identity is still useful *if* the graph forms quickly.
+
+### 5.2 Profile (the “resume + reputation” page)
+**What it must do:**
+- Be a **credible professional summary** for strangers
+- Provide **proof** (experience, education, skills, projects)
+- Act as a **conversion page** for: connection → message → interview/meeting
+
+Common conversion levers:
+- “Open to work” / hiring signals
+- Featured section (posts, links, projects)
+- Recommendations/endorsements (social proof)
+
+### 5.3 Graph building (My Network)
+**Design goals:**
+- Grow network density without making spam feel normal
+- Keep suggestions relevant (shared employer/school/location)
+
+Anti-abuse constraints:
+- Invite caps
+- “People you may know” tuning
+- Connection degree-based messaging permissions
+
+### 5.4 Feed (daily habit engine)
+The feed has to deliver:
+- Professional updates (role changes, wins)
+- High-signal insight (industry, craft)
+- Social proof & reciprocity (likes/comments)
+
+Common post formats:
+- Text posts, link shares, images, videos, docs/carousels
+
+**Hard tradeoff:** if the feed optimizes for raw engagement, it drifts to generic “inspirational” content; if it optimizes too hard for relevance/authority, it can feel sterile and reduce posting.
+
+### 5.5 Search (people / jobs / companies / posts)
+Global search is the graph’s “query interface.”
+- People search: title, company, location, seniority, keywords
+- Company pages: employer brand + job openings
+- Content search: topics, creators, conversations
+
+### 5.6 Messaging (DMs + Requests + InMail)
+Messaging is both a utility surface *and* a monetization/control surface.
+
+Common patterns:
+- Inbox + message requests (anti-spam)
+- “Connect to message” constraints
+- **InMail** as a paid lane for outreach beyond the graph
+
+### 5.7 Jobs (discovery + application)
+Jobs is a high-intent marketplace:
+- Recommendations + search
+- Saved jobs + alerts
+- Apply flows: Easy Apply vs external ATS
+
+**Core risk:** scam/low-quality postings degrade trust quickly.
+
+---
+
+## 6) What LinkedIn is optimizing (North Stars)
+LinkedIn has different “north stars” per surface, but plausible top-level:
+
+1) **Weekly active professionals** (WAU) with meaningful actions
+2) **Marketplace liquidity**
+   - recruiter searches → qualified candidates → messages → replies → hires
+3) **Profile graph quality**
+   - completeness + freshness + accuracy signals
+
+Supporting metrics likely include:
+- Feed sessions per WAU, comment rate, creator retention
+- Connection acceptance rate, invite-to-connection conversion
+- Messaging reply rate (and spam report rate)
+- Job view → save → apply, apply completion, recruiter response rate
+
+---
+
+## 7) Ranking: how the feed likely works (hypotheses)
+A plausible feed ranker structure:
+
+### 7.1 Candidate generation
+- Connections + follows
+- Companies you follow
+- “Second-degree” distribution (viral edges)
+- Topic/interest-based expansion
+
+### 7.2 Features (per post)
+**Relationship strength**
+- Past interactions, mutual connections, same company/school
+
+**Content quality & credibility**
+- Early engagement velocity adjusted for audience size
+- Author history (signal vs engagement-bait)
+- Dwell time / scroll-stops / hides
+
+**Professional relevance**
+- Role/industry match, topical embedding similarity
+
+**Freshness**
+- Recency with decay
+
+**Negative feedback / safety**
+- “Hide”, “Not interested”, report/spam signals
+
+### 7.3 Core guardrail principle
+Long-term retention depends on **trust + signal density**, not just likes.
+
+---
+
+## 8) Monetization model (practical)
+### 8.1 Primary
+- **Talent Solutions:** recruiter seats, candidate search, messaging tools
+- **Job postings:** pay-to-post, promoted jobs
+
+### 8.2 Secondary
+- **Premium subscriptions:** InMail credits, insights, applicant visibility
+- **Ads:** B2B targeting (company/role-based)
+
+### 8.3 Monetization tension
+Revenue wants more outreach + more inventory; trust wants strict anti-spam + higher content quality.
+
+---
+
+## 9) Likely drop-offs + diagnostic hypotheses
+
+### 9.1 Onboarding drop: identity friction
+Symptoms:
+- Users sign up but don’t complete profile or add connections
+Hypotheses:
+- Too many steps before value is felt
+- Weak “first win” (no immediate relevant network or content)
+
+### 9.2 Graph quality drop: invites feel spammy
+Symptoms:
+- Low invite acceptance; high “I don’t know this person” feedback
+Hypotheses:
+- PYMK over-optimizing for acceptance without trust
+- Users gaming growth prompts
+
+### 9.3 Feed fatigue: low-signal content
+Symptoms:
+- Scrolling without interactions; hides increase; WAU softens
+Hypotheses:
+- Ranker leaning too hard into generic engagement
+- Topic relevance underweighted
+
+### 9.4 Messaging abuse: low reply rates
+Symptoms:
+- Cold DMs/InMails ignored; spam reports climb
+Hypotheses:
+- Misaligned incentives for sellers/recruiters
+- Weak inbox/request separation UX or controls
+
+### 9.5 Jobs conversion: view → apply cliff
+Symptoms:
+- Many views/saves, fewer applies
+Hypotheses:
+- Role quality mismatch
+- External ATS friction
+- Low trust in applicant ROI (“no one replies anyway”)
+
+---
+
+## 10) Key instrumentation (minimum viable)
+- **Activation:** % new users reaching profile completeness threshold + 10 connections within 7 days
+- **Graph:** invite sent → accepted rate; “don’t know” feedback rate
+- **Feed:** session depth, comment rate, hides per 1k impressions, creator 30-day retention
+- **Messaging:** reply rate by connection degree; spam/report rate; request accept rate
+- **Jobs:** view → save → apply; apply completion; recruiter response rate (where measurable)
+
+---
+
+## 11) Growth loops & retention hooks
+- **Profile → distribution loop:** stronger profile → better discovery → more views/messages → invest more in profile
+- **Creator loop:** post → engagement → reach → reputation → more posting
+- **Notification loop:** comments/mentions/job alerts → return visits
+- **Marketplace loop (recruiting):** recruiter activity increases job seeker engagement; job seeker activity increases recruiter ROI
+
+---
+
+## 12) What’s notably great (strengths)
+1) **Real-ish identity**: higher trust baseline than most social networks.
+2) **Multi-intent utility**: jobs, recruiting, selling, learning, reputation.
+3) **Graph defensibility**: career history + relationships are sticky.
+4) **B2B monetization fit**: role/company targeting is uniquely valuable.
+
+---
+
+## 13) What’s structurally hard (weaknesses / product debt)
+1) **Signal degradation pressure** in the feed (engagement bait).
+2) **Spam pressure** in invites and messaging.
+3) **Cold-start** for new grads/career switchers (weak graph).
+4) **Trust & safety** in jobs postings and scams.
+
+---
+
+## 14) Opportunities (product bets)
+
+### 14.1 “Signal Density” feed mode
+A feed variant that explicitly optimizes for professional learning:
+- fewer viral reposts
+- more domain experts
+- stronger topic controls (follow topics like a newsletter)
+
+Measure:
+- hides ↓, saves ↑, thoughtful comments ↑, WAU retention ↑.
+
+### 14.2 Messaging quality gates (anti-spam without killing outreach)
+- Introduce “message intent templates” (hire / refer / sell / collaborate)
+- Add lightweight friction for low-reputation senders
+- Recipient-side filters (“only hiring-related requests this week”)
+
+Measure:
+- reply rate ↑, spam reports ↓, long-term sender retention (good actors) stable.
+
+### 14.3 Job seeker ROI: close the loop
+- Better feedback: “application viewed”, “role paused”, “not selected”
+- “Warm intros” productized (request referral with structured context)
+
+Measure:
+- apply conversion ↑, re-apply frequency ↑, churn ↓.
+
+---
+
+## 15) Experiment backlog (practical)
+1) **Feed quality re-ranker**
+   - Downrank “high impressions, high hides” creators/topics
+   - Success: hides ↓ without DAU collapsing; comment quality proxy ↑.
+
+2) **Connection request credibility cues**
+   - Show “Why you’re seeing this” + shared context stronger
+   - Success: acceptance ↑, “don’t know” ↓.
+
+3) **Messaging request triage UI**
+   - Cluster by intent (recruiter, sales, networking)
+   - Success: request-to-reply ↑, spam reports ↓.
+
+4) **Job apply friction reducer**
+   - Pre-fill + resume parsing improvements
+   - Success: apply completion ↑.
+
+---
+
+## 16) 30–60–90 day PM plan (if I owned ‘Core LinkedIn’)
+
+### First 30 days: diagnose + protect trust
+- Establish a **Signal Density dashboard** (hides, reports, low-quality impressions)
+- Segment by persona (job seekers vs recruiters vs creators)
+- Identify top 3 spam vectors in invites/messaging and implement quick mitigations
+
+### 60 days: ship 1–2 trust + relevance wins
+- Launch a feed quality re-ranker experiment for a slice of users
+- Improve connection request context (“why this person”) + reduce random PYMK
+
+### 90 days: deepen one intent workflow
+Pick one and go deep (I’d pick **job seeker ROI**):
+- Better status feedback loops
+- Warm intro/referral flow
+- Stronger matching explanations (why this job)
+
+---
+
+## 17) Open questions for v3
+1) What is LinkedIn’s explicit definition of “quality” for feed ranking (and the top negative signals)?
+2) How do they tune tradeoffs between creator distribution and professional relevance?
+3) What are the strongest anti-spam levers for invites and message requests (caps, reputation, ML)?
+4) How much of Jobs success is matching vs inventory quality vs ATS friction?
+5) What are the most important leading indicators for recruiter ROI (reply rate, qualified pipeline, time-to-hire proxy)?
