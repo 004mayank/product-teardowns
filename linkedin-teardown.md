@@ -2,10 +2,16 @@
 
 **Product:** LinkedIn (professional identity + network + feed + jobs + messaging)
 **Author:** Mayank Malviya
-**Date:** 27 Feb 2026
-**Status:** v2 — upgraded to full teardown format (JTBD, funnel drop-offs, metrics, 30–60–90 priorities, experiment backlog)
+**Date:** 28 Feb 2026
+**Status:** v3 — deeper mechanics: feed + notifications loops, creator incentives, monetization surfaces, and trust/anti-spam playbook
 
 > Notes on sources: This teardown is based on product understanding and common LinkedIn patterns; UI labels and exact ranking behavior below are *representative*, not official.
+
+## What changed in v3 (vs v2)
+- Added a **loop-level model**: how feed ↔ notifications ↔ identity graph reinforce daily habit
+- Expanded **ranking hypotheses** for feed, invites, and job recommendations
+- Broke down **monetization surfaces** (Talent Solutions, Premium, Ads) and the product constraints they impose
+- Added a **trust/anti-spam playbook** for invites, DMs/InMail, and low-signal content
 
 ---
 
@@ -237,15 +243,56 @@ Hypotheses:
 
 ---
 
-## 11) Growth loops & retention hooks
+## 11) Growth loops & retention hooks (V3)
+LinkedIn retention is best understood as **loops layered on top of a trusted identity graph**.
+
+### 11.1 The core “Graph → Feed → Notification → Return” loop
+1) You build graph density (connections, follows, companies)
+2) The feed shows graph-adjacent updates (role changes, posts, job intent)
+3) Notifications create *interrupt-driven returns* (comments, mentions, recruiter messages, job alerts)
+4) Each return produces more graph/identity signals (profile edits, follows, engagement)
+
+**Design insight:** notifications are the metronome; the feed is the content engine; the profile is the trust anchor.
+
+### 11.2 Secondary loops (by persona)
 - **Profile → distribution loop:** stronger profile → better discovery → more views/messages → invest more in profile
 - **Creator loop:** post → engagement → reach → reputation → more posting
-- **Notification loop:** comments/mentions/job alerts → return visits
-- **Marketplace loop (recruiting):** recruiter activity increases job seeker engagement; job seeker activity increases recruiter ROI
+- **Job loop:** save jobs → alerts/recs improve → apply → outcomes → more intent signals
+- **Recruiter loop:** search/filter → outreach → replies → hires → more budget/seat retention
+
+### 11.3 Where loops break (common failure points)
+- Low-signal feed → hides ↑ → creator quality decays
+- Spam invites/DMs → trust collapse → connection friction rises
+- Job “black hole” (no feedback) → apply conversion and repeat usage drop
 
 ---
 
-## 12) What’s notably great (strengths)
+## 12) Monetization surfaces (and the constraints they impose) (V3)
+LinkedIn monetizes without (fully) breaking trust by keeping most paid levers **adjacent to high-intent workflows**.
+
+### 12.1 Talent Solutions (Recruiter seats + job posts)
+- **What’s being sold:** access + workflow (search/filter, outreach, pipelines) and distribution (job posts)
+- **Key constraint:** maintain candidate/job quality so recruiters keep paying
+- **Product implication:** protect **reply rate** and reduce spam, otherwise the marketplace collapses
+
+### 12.2 Premium (subscriptions)
+- **What’s being sold:** visibility + insights + outreach capacity (e.g., InMail), plus learning/credential signals
+- **Key constraint:** upgrades must feel like *leverage*, not pay-to-win
+- **Product implication:** careful gating around “who can message whom” and “who appears in search”
+
+### 12.3 Ads (B2B + brand)
+- **What’s being sold:** role/company targeting, retargeting, and intent-ish audiences (job seeking, learning)
+- **Key constraint:** ad load can’t erode feed signal density
+- **Product implication:** strong relevance controls + separation between ads and organic trust cues
+
+### 12.4 InMail as a safety valve
+InMail is effectively a **priced lane for cold outreach**.
+- Good: creates a cost that suppresses low-quality spam
+- Risk: creates incentives for “spray and pray” if pricing/limits aren’t paired with reputation systems
+
+---
+
+## 13) What’s notably great (strengths)
 1) **Real-ish identity**: higher trust baseline than most social networks.
 2) **Multi-intent utility**: jobs, recruiting, selling, learning, reputation.
 3) **Graph defensibility**: career history + relationships are sticky.
@@ -253,7 +300,7 @@ Hypotheses:
 
 ---
 
-## 13) What’s structurally hard (weaknesses / product debt)
+## 14) What’s structurally hard (weaknesses / product debt)
 1) **Signal degradation pressure** in the feed (engagement bait).
 2) **Spam pressure** in invites and messaging.
 3) **Cold-start** for new grads/career switchers (weak graph).
@@ -261,7 +308,7 @@ Hypotheses:
 
 ---
 
-## 14) Opportunities (product bets)
+## 15) Opportunities (product bets)
 
 ### 14.1 “Signal Density” feed mode
 A feed variant that explicitly optimizes for professional learning:
@@ -289,7 +336,7 @@ Measure:
 
 ---
 
-## 15) Experiment backlog (practical)
+## 16) Experiment backlog (practical)
 1) **Feed quality re-ranker**
    - Downrank “high impressions, high hides” creators/topics
    - Success: hides ↓ without DAU collapsing; comment quality proxy ↑.
@@ -308,7 +355,7 @@ Measure:
 
 ---
 
-## 16) 30–60–90 day PM plan (if I owned ‘Core LinkedIn’)
+## 17) 30–60–90 day PM plan (if I owned ‘Core LinkedIn’)
 
 ### First 30 days: diagnose + protect trust
 - Establish a **Signal Density dashboard** (hides, reports, low-quality impressions)
@@ -327,7 +374,7 @@ Pick one and go deep (I’d pick **job seeker ROI**):
 
 ---
 
-## 17) Open questions for v3
+## 18) Open questions for v3
 1) What is LinkedIn’s explicit definition of “quality” for feed ranking (and the top negative signals)?
 2) How do they tune tradeoffs between creator distribution and professional relevance?
 3) What are the strongest anti-spam levers for invites and message requests (caps, reputation, ML)?
