@@ -1,21 +1,13 @@
 <p align="center">
-  <img src="images/whatsapp.png" alt="WhatsApp" width="120" />
+  <img src="images/whatsapp.png" alt="WhatsApp" width="200" />
 </p>
 
-# WhatsApp — Product Teardown
+# WhatsApp - Product Teardown
 
 > Lens: Product Manager • Scope: **publicly observable behavior only** (no internal Meta data claims)
-
 ---
 
-## Version history
-- **v3 (current):** added competitive positioning, lifecycle risks, prioritization framework, an opportunity tree (building on v2), and clarified the Status loop as an ambient retention lever.
-- **v2:** expanded segments, explicit funnels + activation definitions, loop-specific metric definitions, experiment ideas, and a PM instrumentation/event taxonomy.
-- **v1:** baseline framing (core loop, funnel, north star metrics, trade-offs, and initial opportunities).
-
----
-
-## Product in one sentence
+## Whatsapp in one sentence
 WhatsApp is a **default communication layer**: fast messaging + calls anchored to your phone number, designed to work across network quality, device types, and social contexts.
 
 ## 1) Who it serves (observable segments)
@@ -232,7 +224,7 @@ A helpful way to position WhatsApp is not “feature checklists” but **default
 - **Signal** wins with users who prioritize privacy posture and minimalism as identity.
 - **WhatsApp** wins on distribution and “everyone is here” network effects; the practical PM risk is trust perception drift.
 
-**Positioning takeaway:** WhatsApp’s moat is (a) reliability at scale and (b) ubiquity. Its main competitive risk is not a missing feature—it’s losing the “default” status in key segments.
+**Positioning takeaway:** WhatsApp’s moat is (a) reliability at scale and (b) ubiquity. Its main competitive risk is not a missing feature-it’s losing the “default” status in key segments.
 
 ## 11) Lifecycle risks (what can break the loops)
 These are risks a PM would watch because they directly degrade the loops/funnels above:
@@ -273,10 +265,10 @@ A simple scoring model:
 - **Cost:** engineering + UX + rollout complexity
 - **Risk:** chance of increasing friction or harming trust
 
-## 13) Opportunity tree (v3-quality map)
+## 13) Opportunity tree:
 **North Star (PM framing):** Weekly Active Communicators (WAC) with healthy conversations.
 
-### Branch A — Increase “meaningful activation” (A2/A3)
+### Branch A - Increase “meaningful activation” (A2/A3)
 - A2: improve **first reply rate**
   - Better notification permission timing
   - “Reply expectation” cues (e.g., lightweight nudges after first send)
@@ -285,19 +277,19 @@ A simple scoring model:
   - Reduce lapsed-user friction (deep link → open → send)
   - Use **Status** as an ambient trigger back into DMs (status → reaction/reply → chat)
 
-### Branch B — Improve conversation health (CCR, TTFR)
+### Branch B - Improve conversation health (CCR, TTFR)
 - Reduce TTFR via better presence cues and notification UX
 - Improve readability in busy chats
   - Stronger reply threading, quoting, and “what changed since you were away” summaries (careful: avoid turning it into a feed)
 
-### Branch C — Keep groups high-quality (group survival, mute/leave rates)
+### Branch C - Keep groups high-quality (group survival, mute/leave rates)
 - Admin tooling that sets norms early
 - Better onboarding for large groups/communities (roles, rules, join friction when appropriate)
 
-### Branch D — Reduce abuse without harming utility
+### Branch D - Reduce abuse without harming utility
 - Unknown-message controls that are clear and reversible
 - Scam education moments that appear only when risk is observable
 
-### Branch E — Extend surfaces without breaking simplicity
+### Branch E - Extend surfaces without breaking simplicity
 - Calls as escalation: make call setup more reliable and intent-driven
 - Share sheet and link flows: keep WhatsApp the “fastest route” from content → person/group
