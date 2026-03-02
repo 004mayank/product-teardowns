@@ -1,4 +1,8 @@
-# Instagram DMs (Messaging)
+<p align="center">
+  <img src="images/Instagram.png" alt="Instagram" width="200" />
+</p>
+
+# Instagram DMs
 
 ## 
 This teardown focuses on **Instagram DMs** as a product: the inbox, message requests, 1:1 and group threads, and the set of adjacent surfaces that *route intent into conversations* (Story reply, Send-to share sheet, profile “Message” entry).
@@ -169,11 +173,11 @@ The core design pattern: **message objects carry context** (the Story/Reel/post)
 A reasonable product north star for DMs is:
 
 **North star:** *Meaningful back-and-forth conversations per user per week*
-- Operational proxy: **# of threads with ≥2-way exchange** (A sends, B responds) within 24–48h.
+- Operational proxy: **# of threads with ≥2-way exchange** (A sends, B responds) within 24-48h.
 
 ### Acquisition / Activation
 - **DM activation rate:** % users who send ≥1 DM in N days.
-- **First conversation success:** % initiated threads that receive a reply within 24–48h.
+- **First conversation success:** % initiated threads that receive a reply within 24-48h.
 - **Requests seen rate:** % requests viewed within 24h.
 - **Requests acceptance rate:** accepted / total requests.
 - **Share-to-DM conversion:** content views → share/reply into DM.
@@ -280,7 +284,7 @@ A practical mental model: Instagram DMs are three coupled systems.
 
 ---
 
-## 12) V3 roadmap (3–5 bets tied to metrics)
+## 12) DMs roadmap (3-5 bets tied to metrics)
 ### Bet 1 - Requests: "wanted vs spam" separation + clearer previews
 - **Ship:** two-lane Requests (Likely Known / Likely Spam), preview context (mutuals, where you saw them), faster bulk actions.
 - **Moves:** Requests seen rate ↑, accept rate ↑, block-after-first-message ↓.
