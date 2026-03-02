@@ -1,6 +1,8 @@
-# Slack Messaging - Product Teardown
+<p align="center">
+  <img src="images/Slack.png" alt="Slack" width="200" />
+</p>
 
-**Version history:** V1 → baseline teardown. V2 → adds a detailed metrics & instrumentation plan tied to Slack’s core loops. V3 → adds an opportunity tree with loop‑mapped product bets + experiment and metric plan.
+# Slack Messaging - Product Teardown
 
 ## 1) Positioning
 
