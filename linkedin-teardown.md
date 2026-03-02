@@ -1,35 +1,32 @@
-# Teardown: LinkedIn — Core Social Network → Career Marketplace
+<p align="center">
+  <img src="images/Linkedin.png" alt="Linkedin" width="200" />
+</p>
+
+# Teardown: LinkedIn - Core Social Network → Career Marketplace
 
 **Product:** LinkedIn (professional identity + network + feed + jobs + messaging)
 **Author:** Mayank Malviya
 **Date:** 01 Mar 2026
-**Status:** v3 — deeper mechanics: feed + notifications loops, creator incentives, monetization surfaces, and trust/anti-spam playbook
+**Status:** Final- deeper mechanics: feed + notifications loops, creator incentives, monetization surfaces, and trust/anti-spam playbook
 
 > Notes on sources: This teardown is based on product understanding and common LinkedIn patterns; UI labels and exact ranking behavior below are *representative*, not official.
-
-## What changed in v3 (vs v2)
-- Added a **loop-level model**: how feed ↔ notifications ↔ identity graph reinforce daily habit.
-- Expanded **ranking hypotheses** for feed, invites, and job recommendations.
-- Broke down **monetization surfaces** (Talent Solutions, Premium, Ads) and the product constraints they impose.
-- Added a concrete **trust/anti-spam playbook** for invites, DMs/InMail, jobs scams, and low-signal content.
-
 ---
 
-## TL;DR (what matters)
+## Why this Teardown matters?
 - LinkedIn is best understood as a **trusted identity graph** that converts **career intent** (hire / get hired / sell / build reputation) into daily habit via a **feed + notifications** layer.
-- The hard product problem isn’t “a social feed”—it’s balancing a **high-trust marketplace** (recruiting + jobs + outreach) with **engagement incentives** that naturally drift toward low-signal content.
+- The hard product problem isn’t “a social feed”-it’s balancing a **high-trust marketplace** (recruiting + jobs + outreach) with **engagement incentives** that naturally drift toward low-signal content.
 - The core tension: **open distribution** (creators + virality) vs **professional norms + anti-spam** (invitations, DMs, InMail).
-- If you’re building a competitor, the moat isn’t UI polish—it’s the **profile graph quality** (verified-ish career history), **network effects**, and **recruiter workflow adoption**.
+- If you’re building a competitor, the moat isn’t UI polish-it’s the **profile graph quality** (verified-ish career history), **network effects**, and **recruiter workflow adoption**.
 
 ---
 
-## 1) What LinkedIn is (in one line)
+## 1) What LinkedIn is
 A **professional identity + network graph** that turns real-world career relationships into a **discovery + communication platform**, monetized primarily through **Talent Solutions (recruiting)**, **Premium subscriptions**, and **B2B advertising**.
 
 ---
 
 ## 2) The user’s job-to-be-done (JTBD)
-**Primary JTBD:** “Help me make career progress by increasing surface area for opportunities—credibly and efficiently.”
+**Primary JTBD:** “Help me make career progress by increasing surface area for opportunities-credibly and efficiently.”
 
 **Segment JTBDs (most important):**
 - **Job seeker:** “Find roles worth applying to and get responses.”
@@ -250,7 +247,7 @@ Hypotheses:
 
 ---
 
-## 11) Growth loops & retention hooks (v3)
+## 11) Growth loops & retention hooks
 LinkedIn retention is best understood as **loops layered on top of a trusted identity graph**.
 
 ### 11.1 Core loop: Graph → Feed → Notification → Return
@@ -299,7 +296,7 @@ InMail is effectively a **priced lane for cold outreach**.
 
 ---
 
-## 13) Trust & anti-spam playbook (v3)
+## 13) Trust & anti-spam playbook
 The goal is to preserve LinkedIn’s key asset: **a default assumption of professionalism**.
 
 ### 13.1 Threat model (what degrades trust)
@@ -424,7 +421,7 @@ Pick one and go deep (I’d pick **job seeker ROI**):
 
 ---
 
-## 19) Open questions for v3
+## 19) Open questions
 1) What is LinkedIn’s explicit definition of “quality” for feed ranking (and the top negative signals)?
 2) How do they tune tradeoffs between creator distribution and professional relevance?
 3) What are the strongest anti-spam levers for invites and message requests (caps, reputation, ML)?
