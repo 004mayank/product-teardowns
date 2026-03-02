@@ -1,29 +1,33 @@
-# Teardown: Skyscanner — Flights Search → Booking Handoff
+<p align="center">
+  <img src="images/Skyscanner.png" alt="Skyscanner" width="200" />
+</p>
+
+# Teardown: Skyscanner - Flights Search → Booking Handoff
 
 **Product:** Skyscanner (Flights marketplace metasearch)
 **Author:** Mayank Malviya
 **Date:** 21 Feb 2026
-**Status:** v3 — minor polish + clarified framing, keeping v2 structure (flow, UX patterns/copy, ranking hypotheses, Trust Pack spec, experiments)
+**Status:** Final - Polish + clarified framing, keeping v2 structure (flow, UX patterns/copy, ranking hypotheses, Trust Pack spec, experiments)
 
 > Notes on sources: This teardown is based on product understanding and common Skyscanner / metasearch patterns; treat UI labels and exact copy below as *representative*, not pixel-perfect.
 
 ---
 
-## TL;DR (what matters)
+## Why this Teardown matter?
 - Skyscanner is best understood as a **ranking + trust + routing** system wrapped in a flight search UI.
 - The SRP (search results page) is the core: it’s where Skyscanner **compresses choice** into a few obvious picks (Best/Cheapest/Fastest).
 - Monetization happens at **partner click-out**; the product’s long-term advantage comes from **price accuracy + partner quality governance**.
-- If you were building a competitor, the differentiator isn’t UI polish—it’s the **trust stack** (mismatch prevention, rule clarity, partner reliability).
+- If you were building a competitor, the differentiator isn’t UI polish-it’s the **trust stack** (mismatch prevention, rule clarity, partner reliability).
 
 ---
 
-## 1) What Skyscanner is (in one line)
-A **flight metasearch marketplace** that helps users **discover, compare, and choose** itineraries, then **hands them off** to an airline/OTA partner to complete booking — monetizing primarily via **referral / CPA / CPC** and partner placements.
+## 1) What Skyscanner is
+A **flight metasearch marketplace** that helps users **discover, compare, and choose** itineraries, then **hands them off** to an airline/OTA partner to complete booking - monetizing primarily via **referral / CPA / CPC** and partner placements.
 
 ---
 
 ## 2) The user’s job-to-be-done (JTBD)
-**Primary JTBD:** “Help me find the best flight for my constraints (price, time, stops, airline, baggage, refundability), fast — and get me to a booking I can trust.”
+**Primary JTBD:** “Help me find the best flight for my constraints (price, time, stops, airline, baggage, refundability), fast - and get me to a booking I can trust.”
 
 **Sub-JTBDs:**
 - Reduce search space quickly (filters, sorting, flexible dates).
@@ -149,9 +153,9 @@ When a user taps an itinerary, they usually see:
 - Clear disclosure: “You’ll be redirected to X to complete booking.”
 
 **Representative partner list rows**
-- “Airline Official Site — ₹19,200”
-- “OTA Y — ₹18,430 (Cheapest)”
-- “OTA Z — ₹18,900”
+- “Airline Official Site - ₹19,200”
+- “OTA Y - ₹18,430 (Cheapest)”
+- “OTA Z - ₹18,900”
 
 
 ### 5.6 Booking handoff (click-out)
@@ -371,7 +375,7 @@ Hypotheses:
 
 ---
 
-## 17) Open questions for v4
+## 17) Open questions
 1. What exactly are Skyscanner’s “Best” ranking ingredients (price/duration/stops/CO₂/partner quality)?
 2. How do they operationalize and message mismatch, and what controls exist per partner?
 3. How are baggage/refund rules normalized across partners?
