@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/Cred.png" alt="Cred" width="120" />
+  <img src="images/Cred.png" alt="Cred" width="250" />
 </p>
 
 # CRED Pay (UPI)- Product Teardown
