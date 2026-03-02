@@ -21,7 +21,13 @@ As a Product Manager, I use teardowns to:
 - Document how I reason about product decisions
 
 ## Teardowns
-- Zomato – Search to Checkout Funnel *(in progress)*
-- Loveable – AI agent builder *(in progress)*
+- Zomato – Search to Checkout Funnel
+- Loveable – AI agent builder
+- whatsapp – Messaging breakdown
+- Slack – Messaging breakdown
+- Skyscanner – Search to Booking Funnel
+- Linkedin - Product breakdown **(In Progress)**
+- Instagram - DMs
+- Cred - UPI 
 
 More teardowns will be added iteratively to this repo.
