@@ -1,20 +1,19 @@
-# CRED Pay (UPI) — Product Teardown (V3)
+<p align="center">
+  <img src="images/Cred.png" alt="Cred" width="120" />
+</p>
 
-> Lens: Product Manager • Scope: **publicly observable behavior + first-principles inference** (no internal CRED data claims)
+# CRED Pay (UPI)- Product Teardown
 
-**Version log**
-- **V1 (2026-02-15):** Initial teardown: segments, JTBD, loops, funnels, metrics, instrumentation, 30–60–90.
-- **V2 (2026-02-16):** Added: competitive positioning, user journeys (offline + online), state machine + edge cases, tighter North Star + input metrics.
-- **V3 (2026-02-17):** Deepened **offline scan & pay**: UX checklist, trust/receipt system, pending & reversal handling, offline-specific metrics/instrumentation, and an offline-first opportunity stack.
+> Lens: Product Manager • Scope: **publicly observable behavior + first-principles inference**
 
 ---
 
-## Product in one sentence
+## Cred in one sentence
 CRED Pay is a **premium-leaning UPI checkout + habit layer** that uses rewards, trust cues, and recurring payment contexts to turn commodity UPI payments into a repeatable, high-frequency relationship with CRED.
 
 ---
 
-## 1) Who it serves (segments you can infer from the UX)
+## 1) Who it serves
 Even without internal numbers, the product surface suggests these segments:
 
 1. **Bill payers already in CRED** (credit card bill as the original anchor)
@@ -161,7 +160,7 @@ Key metric:
 ---
 
 ## 7) Concrete user journeys (what “great” looks like)
-### 7.1 Offline scan & pay — “low anxiety” happy path
+### 7.1 Offline scan & pay-“low anxiety” happy path
 **Goal:** user never doubts merchant identity or final outcome.
 
 1. Entry: open scanner (home shortcut / quick action)
@@ -170,7 +169,7 @@ Key metric:
 4. Amount entry (and tip/split only if relevant)
 5. Confirm + choose account/UPI id (default smartly, but editable)
 6. PIN
-7. **Success screen** (must be unambiguous)
+7. **Success screen**
    - Amount, merchant, status, timestamp
    - UTR/reference id
    - Share/download receipt
@@ -178,7 +177,7 @@ Key metric:
 
 **Why this matters:** most support tickets come from “did it go through?” not from “I couldn’t pay.”
 
-#### V3 expansion: offline UX checklist (what “premium” actually means)
+#### Offline UX checklist (what “premium” actually means)
 Offline UPI is a **trust + speed** problem under time pressure (merchant waiting, noisy environment, flaky network). A premium app wins by reducing *payment anxiety*.
 
 **A) Scanner entry**
@@ -216,7 +215,7 @@ Success screen must be **boring and definitive**:
 - duplicate attempt rate (panic retries)
 - support contacts per 1k offline payments
 
-### 7.2 Online intent — “fast callback” happy path
+### 7.2 Online intent - “fast callback” happy path
 **Goal:** minimal app-switch pain + clear return-to-merchant.
 
 1. User taps “Pay via UPI” on merchant
@@ -256,7 +255,7 @@ Your UX should map 1:1 to a state model users can understand.
 - Duplicate payment attempts
 - Collect request expiry (if used)
 
-#### V3 expansion: pending/reversal handling (offline trust)
+#### Pending/reversal handling (offline trust)
 Most offline trust loss comes from **Pending/Unknown** outcomes.
 
 Design rules:
@@ -316,7 +315,7 @@ PM goal:
 
 ---
 
-## 11) Instrumentation: event taxonomy (PM-ready)
+## 11) Instrumentation: event taxonomy
 A minimal, analysis-friendly schema:
 
 - `pay_entry_impression(source)`
