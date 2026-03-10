@@ -5,7 +5,8 @@
 ---
 
 ## Version history
-- **v2 (current):** expanded loops (pickup, pricing, safety), added reactivation + scheduled rides funnel, explicit metric definitions/guardrails, diagnostics, and experiment backlog (building on v1).
+- **v3 (current):** adds marketplace “control system” view (dispatch, ETA, incentives), experience-quality scorecards, cancellation root-causes + mitigations, support & dispute loop, fraud/abuse surfaces, and a sharper 0→1 experiment plan with guardrails.
+- **v2:** expanded loops (pickup, pricing, safety), added reactivation + scheduled rides funnel, explicit metric definitions/guardrails, diagnostics, and experiment backlog (building on v1).
 - **v1:** baseline framing (core loop, marketplace funnel, north star metrics, trade-offs, initial opportunities).
 
 ---
@@ -46,47 +47,60 @@ For riders:
 For drivers:
 - **Earning power** → earnings/hour, earnings/trip, paid-mile share
 - **Low downtime** → idle minutes between trips, dispatch efficiency
-- **Fairness / predictability** → earnings variance, dispute resolution time
+- **Fairness / predictability** → earnings variance, incentive comprehension, dispute resolution time
 
 ---
 
-## 3) The core loops (v2: break the marketplace into loops)
-### 3.1 Match loop (liquidity loop)
-**Rider intent → Request → Driver accept → Match → Pickup ETA shown**
+## 3) Core loops (v3: add the “control system” view)
+Uber isn’t just a loop; it’s a **closed-loop controller** that continuously adjusts matching, ETAs, and prices/incentives to keep service levels stable.
+
+### 3.1 Match loop (liquidity)
+**Rider intent → Request → Driver offer → Accept → Match → Pickup ETA shown**
 
 Metrics:
 - **Request-to-match rate** (% of requests that match)
 - **Median match time** (p50/p90)
 - **Driver acceptance rate** (offers accepted / offers shown)
-- **Supply-demand imbalance indicators** (e.g., “no cars available” rate, long ETA share)
+- **Long-ETA share** (requests with ETA > threshold)
 
-### 3.2 Pickup coordination loop (highest-friction moment)
-**Driver navigates → Arrives → Rider finds car → Pickup succeeds**
+### 3.2 Pickup coordination loop (highest-friction)
+**Driver navigates → Arrives → Rider locates car → Pickup succeeds**
 
 Metrics:
 - **Arrive→Start time** (p50/p90)
-- **Pickup failure rate** (driver arrived but trip canceled / no-show)
-- **Wrong-pickup / wrong-side-of-road proxies** (manual reports, reroute events)
+- **Pickup failure rate** (arrived but canceled / no-show)
+- **Pickup confusion signals** (chat/call usage rate, reroutes, GPS drift)
 
-### 3.3 Pricing & incentives loop (stability loop)
-**Demand spike → price rises / incentives appear → more supply comes online → ETAs normalize**
+### 3.3 Pricing & incentives loop (stability)
+**Demand spike → price rises / incentives appear → supply increases → ETAs normalize**
 
 Metrics:
-- **Conversion at checkout** (destination set → request_confirmed)
+- **Conversion at checkout** (destination_set → request_confirmed)
 - **Surge exposure rate** and **surge abandonment rate**
-- **Driver online hours response** to incentives (by geo/time)
+- **Supply response** (drivers online / repositioning after incentive)
 
 Guardrails:
-- Rider trust: complaints/disputes about pricing
-- Driver trust: incentive comprehension and payout dispute rate
+- Rider trust: pricing complaint/dispute rate
+- Driver trust: incentive payout dispute rate
 
-### 3.4 Trust & safety loop (long-term retention loop)
-**Safe trip → confidence → repeat usage; unsafe incident → churn**
+### 3.4 Trust & safety loop (retention)
+**Safe trips → confidence → repeat; incidents → churn**
 
 Metrics:
 - **Incidents per 100k trips** (category-based)
-- **Safety tool usage rate** (share trip, emergency assist, PIN verification where present)
-- **Rating health** (distribution skew, low-rating concentration by geo/time)
+- **Safety tool usage rate** (share trip, emergency assist, PIN where present)
+- **Rating health** (low-rating concentration by geo/time)
+
+### 3.5 Support & dispute loop (hidden but critical)
+**Problem → contact support → resolution → trust restored (or churn)**
+
+Metrics:
+- **Contact rate per 1k trips** (by issue category)
+- **Time to first response / time to resolution**
+- **Refund rate** and **appeal rate**
+- **Post-resolution retention** (next-30d trip probability after case)
+
+PM implication: the support loop is a *quality backstop*; when it degrades, it amplifies churn and distrust faster than most “in-app” changes can compensate.
 
 ---
 
@@ -98,9 +112,9 @@ Metrics:
 4. See price + ETA options
 5. Select product (X/Comfort/XL etc.)
 6. Confirm
-7. **Match**
-8. **Pickup**
-9. **Trip complete**
+7. Match
+8. Pickup
+9. Trip complete
 10. Rate / tip
 
 Typical drop-offs:
@@ -109,17 +123,17 @@ Typical drop-offs:
 - Long ETAs / “no cars available”
 
 ### 4.2 Rider re-activation funnel (lapsed)
-1. Trigger (push, email, deep link, promo)
+1. Trigger (push/email/deep link/promo)
 2. Open app
-3. Destination set (or repeat destination suggestion)
+3. Destination set (or repeat destination)
 4. Price/ETA acceptable
-5. **Request confirmed**
+5. Request confirmed
 
 Metrics:
 - Open→destination_set conversion
 - destination_set→request_confirmed conversion
 
-### 4.3 Scheduled ride funnel (higher intent, reliability-first)
+### 4.3 Scheduled ride funnel (higher intent)
 1. Schedule intent (airport / morning commute)
 2. Set time window
 3. Price/terms understood
@@ -157,101 +171,122 @@ Drivers:
 
 ---
 
-## 5) North Star + supporting metrics
-A workable North Star for core ride-hailing:
+## 5) North Star + scorecards (v3: separate “volume” from “quality”)
+### North Star (volume)
+**Weekly Completed Trips (WCT)**
 
-**Weekly Completed Trips (WCT)** with healthy experience quality.
+### Rider Experience Scorecard (guardrails)
+- p90 **match time**
+- p90 **pickup ETA** and p90 **arrive→start**
+- **post-match cancel rate** (rider + driver)
+- **support contact rate**
+- **pricing dispute rate**
 
-Supporting drivers + guardrails:
-- **Coverage / liquidity:** % requests served, supply hours by geo/time
-- **Speed:** p50/p90 match time, pickup ETA, arrive→start time
-- **Reliability:** completion rate, cancel rate (rider/driver), no-show rate
-- **Economics (observational framing):** price index, driver earnings/hour, paid-mile share
-- **Trust:** incident rate, fraud rate, dispute rate, rating health
+### Driver Experience Scorecard (guardrails)
+- **earnings/hour** (net proxy if available), earnings variance
+- **paid-mile share** (paid miles / total miles)
+- **deadhead minutes** per completed trip
+- **offer accept rate** (by geo/time)
+- **payout dispute rate**
 
----
-
-## 6) Key product trade-offs (what’s structurally hard)
-1. **Low prices vs driver earnings**
-   - Lower prices increase demand; higher driver earnings increase supply.
-   - The platform must balance both, often via dynamic pricing/incentives.
-
-2. **Fast matching vs pickup efficiency**
-   - Nearest-driver matching reduces ETAs but can create bad pickups (complex intersections, gated areas).
-
-3. **Surge pricing vs perceived fairness**
-   - Surge solves liquidity but can feel exploitative; transparency and predictability matter.
-
-4. **Strict safety controls vs booking friction**
-   - More verification and checks reduce harm but increase funnel drop-offs.
-
-5. **Marketplace efficiency vs user control**
-   - Too much choice can slow matching; too little can reduce trust (“why this driver/route/price?”).
+Why scorecards: WCT can be “bought” (by pushing price down or over-incentivizing) while quietly destroying trust. The scorecards prevent that.
 
 ---
 
-## 7) Diagnostics: where things break (v2)
-1. **Long match times**
-   - Likely: supply shortage, low driver acceptance due to low expected earnings, or deadhead distance.
-   - Watch: request-to-match rate, acceptance rate, p90 match time.
+## 6) Cancellation taxonomy (v3: treat cancels like a product)
+Cancellations are the most expensive UX failure because they waste time on both sides and create distrust.
 
-2. **High cancellation after match**
-   - Likely: pickup confusion, rider not ready, driver changed mind, traffic.
-   - Watch: post-match cancel rate split by rider vs driver, arrive→start time.
+### 6.1 Rider cancels (common root causes)
+- **ETA shock** (ETA worsened after request)
+- **Price regret** (surge discomfort)
+- **Pickup confusion** (wrong pin, complex pickup)
+- **Rider not ready** (multi-tasking)
 
-3. **Checkout abandonment**
-   - Likely: surge, poor ETA, lack of price confidence.
-   - Watch: destination_set→request_confirmed conversion, surge abandonment.
+Mitigations:
+- ETA confidence bands (“likely pickup 6–8 min”)
+- “Wait & Save” / alternatives before confirm
+- Guided pickup pin + landmark confirmation
+- Lightweight “I’m coming out now” readiness prompt
 
-4. **Trust incidents / perception drift**
-   - Likely: safety events, scams, poor support resolution.
-   - Watch: incident rate, dispute rate, support time-to-resolution proxies.
+### 6.2 Driver cancels (common root causes)
+- **Low expected earnings** (short trips, traffic)
+- **Hard pickup** (gates, unsafe stops)
+- **Multi-apping opportunity cost**
 
----
-
-## 8) What I’d test (experiment backlog)
-### Experiment 1: Pickup precision upgrade (reduce cancels, improve ETAs)
-- Guided pickup pin: landmark selection + “which side of road” micro-choices
-- Stronger driver↔rider rendezvous cues (e.g., confirm clothing/car color, clearer “I’m here” states)
-
-Success:
-- Post-match cancel rate ↓, arrive→start time ↓, pickup failures ↓
-
-### Experiment 2: Surge transparency + “wait & save” as a first-class choice
-- Explain why price is high right now and offer a clear wait-time trade
-- Add a price confidence indicator (how likely fare changes)
-
-Success:
-- destination_set→request_confirmed conversion ↑ at same supply health, disputes ↓
-
-### Experiment 3: Reliability mode for airport / high-stakes trips
-- Make scheduled rides clearer; reduce day-of uncertainty (assignment notifications, arrival confidence)
-
-Success:
-- On-time pickup ↑, airport segment repeat rate ↑
-
-### Experiment 4: Driver acceptance improvement via pickup-quality signals
-- Show pickup difficulty cues (complex intersections, gates) and compensate/route accordingly
-
-Success:
-- Acceptance rate ↑ in hard-pickup zones, pickup failures ↓
-
-### Experiment 5: Re-activation with intent shortcuts
-- Smart “repeat destination” + “time-to-leave” suggestions for commuters
-
-Success:
-- Lapsed open→request conversion ↑, A2/A3 retention ↑
+Mitigations:
+- Pickup difficulty signals + compensation
+- Reduced deadhead via smarter dispatch / staging
+- Penalties only when coupled with fairness + clarity (avoid adversarial dynamics)
 
 ---
 
-## 9) Instrumentation plan (PM-usable)
+## 7) Fraud / abuse surfaces (publicly observable)
+You don’t need internal data to know these exist; you design for them.
+
+Rider-side examples:
+- False “driver didn’t pick me up” claims
+- Chargebacks / payment failures
+
+Driver-side examples:
+- GPS spoofing / trip manipulation attempts
+- Collusion around surge zones (hard to prove; design deterrents)
+
+Platform mitigations (product-facing):
+- Strong receipts, trip timelines, and transparent dispute flows
+- Anomaly detection + friction only for high-risk cohorts (protect baseline conversion)
+
+---
+
+## 8) Key product trade-offs (still true, sharper framing)
+1. **Low prices vs driver earnings** (demand vs supply)
+2. **Fast matching vs pickup quality** (speed vs rendezvous success)
+3. **Surge vs perceived fairness** (stability vs trust)
+4. **Safety controls vs booking friction** (harm reduction vs conversion)
+5. **Automation vs explainability** (efficiency vs “why did this happen?”)
+
+---
+
+## 9) What I’d build/test next (v3: a focused plan)
+### Bet 1: Pickup Quality Pack (reduce post-match cancels)
+Features:
+- Guided pin: landmark + side-of-road + gate/entry hints
+- Driver-facing pickup difficulty cue + route to best stopping point
+- “I’m here” state machine with clearer rendezvous cues
+
+Success:
+- Post-match cancel rate ↓
+- Arrive→Start p90 ↓
+- Support contact rate about pickup ↓
+
+### Bet 2: ETA Confidence + Requote Transparency
+Features:
+- ETA range + “confidence” indicator
+- If ETA changes materially: explicit “requote” moment (with easy cancel before wasting time)
+
+Success:
+- Rider cancels due to ETA shock ↓
+- Ratings health ↑
+
+### Bet 3: Support-first Trust Repair (fast resolution for the top 3 issues)
+Start with the biggest-volume issues (typically: pricing questions, cancellations, lost item / trip problems).
+
+Success:
+- Time-to-resolution ↓
+- Repeat trips after case ↑
+
+Guardrails (all bets):
+- Checkout conversion doesn’t fall
+- Driver acceptance doesn’t fall in affected geos
+
+---
+
+## 10) Instrumentation (PM-usable)
 Event taxonomy (illustrative):
-- rider_onboarding_*: signup_completed, payment_added
 - rider_trip_*: app_open, pickup_set, destination_set, product_viewed, request_started, request_confirmed, match_found, driver_arrived, trip_started, trip_completed, trip_canceled
-- rider_scheduled_*: schedule_started, schedule_confirmed, schedule_canceled
-- driver_supply_*: go_online, go_offline, request_received, request_accepted, request_rejected, pickup_arrived, pickup_success, trip_started, trip_completed, trip_canceled
-- pricing_*: fare_shown, surge_shown, wait_and_save_shown, fare_changed, promo_applied
-- trust_*: report_submitted, safety_tool_used, identity_verification_step, dispute_opened, dispute_resolved
+- driver_supply_*: go_online, go_offline, request_received, request_accepted, request_rejected, pickup_arrived, trip_started, trip_completed, trip_canceled
+- pricing_*: fare_shown, surge_shown, wait_and_save_shown, fare_changed
+- trust_*: safety_tool_used, report_submitted, dispute_opened, dispute_resolved
+- support_*: help_opened, contact_initiated, agent_assigned, refund_issued, case_resolved
 
 Always log time deltas:
 - open→destination_set
@@ -260,3 +295,4 @@ Always log time deltas:
 - match_found→driver_arrived
 - driver_arrived→trip_started
 - trip_started→trip_completed
+- driver_arrived→trip_canceled (pickup failure shape)
