@@ -1,13 +1,11 @@
-# Uber — Ride-hailing Product Teardown
+<p align="center">
+  <img src="images/uber.png" alt="Uber logo" width="400"/>
+</p>
+
+
+# Uber - Ride-hailing Product Teardown
 
 > Lens: Product Manager • Scope: **publicly observable behavior only** (no internal Uber data claims)
-
----
-
-## Version history
-- **v3 (current):** adds marketplace “control system” view (dispatch, ETA, incentives), experience-quality scorecards, cancellation root-causes + mitigations, support & dispute loop, fraud/abuse surfaces, and a sharper 0→1 experiment plan with guardrails.
-- **v2:** expanded loops (pickup, pricing, safety), added reactivation + scheduled rides funnel, explicit metric definitions/guardrails, diagnostics, and experiment backlog (building on v1).
-- **v1:** baseline framing (core loop, marketplace funnel, north star metrics, trade-offs, initial opportunities).
 
 ---
 
@@ -32,7 +30,7 @@ Observable rider segments by intent:
 3. **Multi-apping drivers**: will switch based on near-term earnings and friction.
 4. **Location-constrained drivers** (prefer certain areas/times): acceptance behavior shaped by deadhead distance, safety, and expected fares.
 
-PM implication: this is not a single funnel—it’s **liquidity management** across time/geo with two sets of incentives.
+PM implication: this is not a single funnel-it’s **liquidity management** across time/geo with two sets of incentives.
 
 ---
 
