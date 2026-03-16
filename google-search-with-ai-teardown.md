@@ -4,20 +4,30 @@
 
 # Teardown: Google Search - Adding AI Answers Without Breaking the Web
 
-**Product:** Google Search (consumer search + ads + publisher ecosystem)
-**Author:** Mayank Malviya
-**Date:** 16 Mar 2026
-**Status:** v1 - product teardown focused on AI answers / AI-assisted search
+**Product:** Google Search (consumer search + ads + publisher ecosystem)  
+**Author:** Mayank Malviya  
+**Date:** 16 Mar 2026  
+**Status:** v2 — deeper teardown: SERP contract, eligibility policy, evaluation loops, ecosystem economics, and rollout guardrails
 
-> Notes on sources: This teardown is based on product understanding and public industry patterns. Exact ranking/ads policies, model behavior, and UI labels are *representative*, not official.
+> Notes on sources: This teardown is based on product understanding and public industry patterns. Exact ranking/ads policies, model behavior, and UI labels below are *representative*, not official.
+
+---
+
+## What changed in v2 (vs v1)
+- Added a clearer **operating model**: query understanding → eligibility → grounded answer → actions → measurement.
+- Expanded **SERP UX mechanics**: citations, uncertainty display, and conversational follow-ups without losing intent.
+- Added **publisher ecosystem lens**: traffic/value exchange, attribution quality, and long-term incentives.
+- Deepened **ads integration constraints**: trust separation, commercial intent routing, and measurement.
+- Added a practical **evaluation stack**: offline evals, human rating, online guardrails, and counterfactuals.
+- Added a **rollout playbook**: eligibility ramp, high-risk query gating, incident response.
 
 ---
 
 ## TL;DR (what matters)
 - “AI in Search” is not a feature; it’s a **re-architecture of the SERP contract**: from “links first” to “answers + actions first” while still funding the ecosystem via **ads** and sustaining the **open web**.
-- The core product tension is **helpfulness vs. attribution vs. monetization**:
-  - AI answers reduce clicks (good for users), but risk **publisher value collapse** (bad for the web) and can reduce **commercial intent capture** (bad for ads) unless redesigned carefully.
-- The real moat is distribution + infrastructure: **query volume**, **freshness**, **index quality**, **anti-abuse**, **latency**, and a **feedback loop** that turns user interactions into relevance and trust.
+- The core tension is **helpfulness vs. attribution vs. monetization**:
+  - AI answers reduce clicks (good for users) but risk **publisher value collapse** (bad for the web) and can reduce **commercial intent capture** (bad for ads) unless redesigned carefully.
+- The real moat is distribution + infrastructure: **query volume**, **freshness**, **index quality**, **anti-abuse**, **latency**, and a **feedback loop** turning user interactions into relevance and trust.
 - The hardest PM problem: deciding **when to answer** vs **when to cite + send traffic** vs **when to ask a clarifying question**, with guardrails for safety, policy, and correctness.
 
 ---
@@ -36,46 +46,64 @@ A **universal intent router**: it takes a query, infers intent, and returns the 
 - **Go**: navigate locally (e.g., “coffee near me”).
 - **Buy**: compare/purchase (e.g., “best noise cancelling headphones under 200”).
 
-AI changes the experience most in **Know** and high-consideration **Buy** queries.
+AI shifts the experience most for:
+- **Know** queries (synthesis, explanations, structured steps)
+- high-consideration **Buy** queries (comparison + shortlisting)
 
 ---
 
-## 3) The core funnel (macro)
-Search is unusual: users don’t “onboard” much. The funnel is per-query.
+## 3) The core loop (per-query)
+Search doesn’t have a traditional “onboarding funnel”. The funnel is **every query**.
 
 **Query loop:**
-1. **Query issued** (typed/voice/image)
-2. **SERP viewed** (answers, ads, modules, links)
-3. **Action taken** (click, refine, follow-up question, call, navigate)
-4. **Outcome** (task done / purchase / learning)
-5. **Satisfaction signals** (short-click/long-click, reformulations, dwell, back-to-SERP)
+1) **Query issued** (typed/voice/image)
+2) **SERP viewed** (answers, ads, modules, links)
+3) **Action taken** (click, refine, follow-up, call, navigate)
+4) **Outcome** (task done / purchase / learning)
+5) **Satisfaction signals** (reformulations, dwell, back-to-SERP)
 
 AI adds a parallel path:
-- **AI answer consumed** → follow-up prompts → cited sources → deeper exploration.
+- **AI answer consumed** → follow-up prompts → cited sources → deeper exploration
+
+A simple mental model:
+
+```
+Query
+  ↓
+Understand intent + risk
+  ↓
+Decide: Answer | Ask | Route to vertical | Links
+  ↓
+Show: AI block + citations + actions + organic + ads
+  ↓
+Measure: satisfaction + ecosystem + revenue
+```
 
 ---
 
 ## 4) What changes when you add AI to Search
+
 ### 4.1 The SERP contract shifts
 Traditional contract: *“We’ll rank the best documents.”*
 
-AI contract: *“We’ll produce the best **response** (and ideally show the best sources) - and sometimes we won’t even need you to click.”*
+AI contract: *“We’ll produce the best response (with sources) — and sometimes you won’t need to click.”*
 
-That forces new decisions:
-- When to show an AI answer vs featured snippet vs “10 blue links”
-- How to keep **attribution** credible and visible
-- How to preserve **choice** (multiple perspectives) when the AI synthesizes
+This creates new product obligations:
+- **Attribution** must be credible and visible
+- **Uncertainty** must be represented (especially for contested topics)
+- **Choice** must remain (multiple sources, perspectives)
+- **Freshness** must be guarded (time-sensitive answers)
 
 ### 4.2 Retrieval + generation becomes a product primitive
-The experience depends on:
-- **Retrieval** (what sources are eligible)
-- **Grounding** (how the model uses sources)
-- **Presentation** (citations, quotes, source diversity)
-- **Follow-ups** (conversational refinement without losing intent)
+The user experience quality depends on:
+- **Retrieval**: what sources are eligible and selected
+- **Grounding**: how tightly the answer is constrained to sources
+- **Presentation**: citations, quotes, source diversity
+- **Follow-ups**: conversation that doesn’t lose the original intent
 
 ### 4.3 New failure modes
 - Confident wrong answers (hallucinations)
-- Citation errors (wrong source for the claim)
+- Citation errors (misattribution)
 - Stale info (freshness gaps)
 - Over-summarization (nuance loss)
 - Publisher harm (traffic cannibalization without value return)
@@ -83,91 +111,130 @@ The experience depends on:
 ---
 
 ## 5) Information architecture (IA): the “AI SERP”
-A representative AI-enhanced SERP tends to contain:
-- **AI answer block** (summary + steps + structured sections)
-- **Citations** (links, sometimes with quoted snippets)
-- **Traditional results** (organic links)
+A representative AI-enhanced SERP contains:
+- **AI answer block** (summary + sections + steps)
+- **Citations** (links; ideally anchored to claims)
+- **Organic results** (traditional links)
 - **Vertical modules** (maps, shopping, news, videos)
-- **Ads** (text ads, shopping ads, local ads)
-- **Follow-up bar / prompts** (ask next question)
+- **Ads** (text, shopping, local)
+- **Follow-up prompts** (ask next question)
 
-The IA challenge is preventing the AI block from becoming a **dead-end**.
-
----
-
-## 6) Metrics that matter (north star + guardrails)
-### North Star (user)
-- **Successful sessions per user** (task completed with high satisfaction)
-
-### Supporting metrics
-- **Query success rate** (implicit: fewer reformulations, longer dwell on successful outcomes)
-- **Time-to-satisfaction** (TTX)
-- **Follow-up completion rate** (AI conversational refinement)
-- **Citation interaction rate** (healthy clicks to sources when appropriate)
-
-### Ecosystem + business guardrails
-- **Publisher traffic health** (especially for informational queries)
-- **Commercial intent capture** (ads CTR/conv on eligible queries)
-- **Trust & safety incidents** (policy violations, unsafe advice)
-- **Answer accuracy / correction rate** (human eval + user feedback)
-
-A mature AI Search setup treats these as a **balanced scorecard**, not a single metric.
+**The IA challenge:** the AI block can become a dead-end if it doesn’t:
+- encourage deeper exploration when appropriate
+- route commercial intent cleanly to shopping/results
+- preserve user agency (sources + alternatives)
 
 ---
 
-## 7) Product decisions: when should AI answer?
+## 6) The policy engine: when should AI answer?
 A good heuristic policy (not official):
 
 **AI should answer when:**
 - Intent is informational and can be grounded to multiple sources
-- The task is multi-step but generic (e.g., “how to clean a coffee grinder”)
+- The task is multi-step but generic
 - The query benefits from synthesis (comparison, pros/cons, structured plan)
 
-**AI should not answer (or should heavily constrain) when:**
-- High-risk domains (medical, legal, finance) without strong grounding + disclaimers
-- Highly time-sensitive breaking news without freshness guarantees
-- Queries where the user likely wants a **specific source** (navigational)
-
 **AI should ask a clarifying question when:**
-- The query is underspecified and branching (e.g., “best laptop” without budget/OS)
+- The query is underspecified and branching (e.g., “best laptop”) and clarification reduces wasted work
+
+**AI should avoid answering or heavily constrain when:**
+- High-risk domains without strong grounding (medical, legal, finance)
+- Breaking news without freshness guarantees
+- Navigational queries where the user wants a specific site
+
+**PM nuance:** “avoid answering” doesn’t mean “no AI”. It can mean:
+- show sources first
+- provide a checklist of what to consider
+- ask clarifying questions
 
 ---
 
-## 8) Ads + monetization: integrating intent with AI
+## 7) Ads + monetization: integrating intent with AI (without losing trust)
 Search monetization works because it captures **intent at the moment of need**.
 
 AI can either:
-- **Help ads** (better intent understanding, better matching, better landing decisions)
-- or **hurt ads** (fewer clicks, fewer result views, less surface area)
+- help ads (better intent understanding, better matching, better landing decisions)
+- hurt ads (fewer clicks, fewer result views, reduced surface area)
 
-A sensible product approach:
-- Keep ads clearly labeled and separated
-- Use AI to improve the user journey *after* the click (e.g., better pre-qualification)
-- Ensure AI doesn’t “answer away” high-commercial queries without offering routes to compare/buy
+**Non-negotiable constraint:** user trust depends on clear separation:
+- ads must be visibly labeled
+- AI answers must not look like covert sponsored content
 
-Key constraint: any AI integration must preserve **user trust** that results are not covertly biased.
-
----
-
-## 9) Trust, safety, and abuse
-AI raises the stakes on:
-- **Spam/SEO manipulation** (models may over-trust optimized pages)
-- **Content farms** designed to be “LLM-friendly”
-- **Prompt injection** via retrieved content
-
-Guardrails (product + system):
-- Source reputation and diversity heuristics
-- Grounding requirements for factual claims
-- Defensive rendering (don’t execute instructions from retrieved pages)
-- Prominent “report” and feedback loops
+**Likely PM strategy:**
+- For **Buy** queries, route quickly to comparison surfaces and keep “AI summary” as assistive, not terminal.
+- For **Know** queries, use AI to reduce time-to-satisfaction, but maintain citations that still drive meaningful traffic.
 
 ---
 
-## 10) What I’d do as the PM (30–60–90 day plan)
+## 8) The publisher ecosystem problem (the uncomfortable part)
+AI answers reduce clicks. That’s the point.
+
+But the web’s long-run health requires some exchange:
+- publishers invest in content
+- search indexes and routes traffic
+- publishers monetize (ads/subscriptions/leads)
+
+If AI absorbs demand without a compensating loop, the ecosystem degrades:
+- fewer high-quality sources
+- more SEO spam and content farms
+- lower retrieval quality → worse AI answers
+
+**What “good” might look like (principles):**
+- citation UX that drives *qualified* clicks (not just token links)
+- source diversity (avoid monoculture)
+- attribution that is legible and claim-anchored
+- anti-abuse systems that penalize AI-targeted spam
+
+---
+
+## 9) Evaluation stack (how you avoid shipping hallucinations at scale)
+A realistic evaluation stack has layers:
+
+### 9.1 Offline evaluation
+- curated test sets by intent and risk
+- factuality and citation correctness checks
+- freshness tests (time-sensitive queries)
+
+### 9.2 Human rating
+- “is this correct?” plus “is this helpful?”
+- policy compliance
+- citation relevance
+
+### 9.3 Online guardrails
+- eligibility gates (don’t answer certain classes)
+- runtime checks (source count, confidence thresholds)
+- fallback strategy (links-only or vertical modules)
+
+### 9.4 Counterfactuals and bias
+Ranking + AI answers create feedback loops. You need:
+- logs that record what alternatives were available
+- metrics that correct for position bias
+
+---
+
+## 10) Rollout playbook (how you ship without breaking everything)
+- Start with low-risk **Know** queries
+- Add language/geo gradually
+- Keep a hard “kill switch” per category (medical, finance, breaking news)
+- Monitor scorecard:
+  - user success
+  - trust/safety incidents
+  - publisher traffic health
+  - ads revenue and long-run retention
+
+**Incident response:**
+- fast rollback
+- public-facing correction mechanisms
+- internal root-cause taxonomy (retrieval, grounding, freshness, policy)
+
+---
+
+## 11) What I’d do as the PM (30–60–90 day plan)
+
 ### First 30 days: define the contract
 - Define eligibility policy by intent bucket + risk class
 - Decide citation UX (how many, where, and what they represent)
-- Ship a robust feedback capture: “wrong / outdated / unsafe / missing sources”
+- Ship robust feedback capture: “wrong / outdated / unsafe / missing sources”
 
 ### 60 days: improve outcomes, not just answers
 - Add clarifying question patterns for underspecified queries
@@ -181,21 +248,22 @@ Guardrails (product + system):
 
 ---
 
-## 11) Moats and threats
+## 12) Moats and threats
+
 ### Moats
-- Index quality + freshness + multilingual coverage
-- Anti-abuse + trust signals at scale
-- Distribution (default placements) + habit
-- Data flywheel (query/session feedback)
+- index quality + freshness + multilingual coverage
+- anti-abuse + trust signals at scale
+- distribution + habit
+- data flywheel (query/session feedback)
 
 ### Threats
-- Verticalized AI assistants that solve tasks end-to-end
-- Publisher backlash and regulatory pressure if traffic collapses
-- Trust erosion from a few high-profile incorrect answers
+- vertical AI assistants that solve tasks end-to-end
+- publisher backlash and regulatory pressure if traffic collapses
+- trust erosion from a few high-profile incorrect answers
 
 ---
 
-## 12) Open questions (worth debating)
+## 13) Open questions (worth debating)
 - What is the right **economic exchange** with publishers in an AI-first SERP?
 - How do we communicate **uncertainty** without confusing users?
 - What’s the right UX for “multiple perspectives” when the model synthesizes?
