@@ -1,9 +1,13 @@
-# Teardown: Google Search — Adding AI Answers Without Breaking the Web
+<p align="center">
+  <img src="images/google.png" alt="google" width="400" />
+</p>
+
+# Teardown: Google Search - Adding AI Answers Without Breaking the Web
 
 **Product:** Google Search (consumer search + ads + publisher ecosystem)
 **Author:** Mayank Malviya
 **Date:** 16 Mar 2026
-**Status:** v1 — product teardown focused on AI answers / AI-assisted search
+**Status:** v1 - product teardown focused on AI answers / AI-assisted search
 
 > Notes on sources: This teardown is based on product understanding and public industry patterns. Exact ranking/ads policies, model behavior, and UI labels are *representative*, not official.
 
@@ -55,7 +59,7 @@ AI adds a parallel path:
 ### 4.1 The SERP contract shifts
 Traditional contract: *“We’ll rank the best documents.”*
 
-AI contract: *“We’ll produce the best **response** (and ideally show the best sources) — and sometimes we won’t even need you to click.”*
+AI contract: *“We’ll produce the best **response** (and ideally show the best sources) - and sometimes we won’t even need you to click.”*
 
 That forces new decisions:
 - When to show an AI answer vs featured snippet vs “10 blue links”
