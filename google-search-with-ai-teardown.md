@@ -6,20 +6,18 @@
 
 **Product:** Google Search (consumer search + ads + publisher ecosystem)  
 **Author:** Mayank Malviya  
-**Date:** 16 Mar 2026  
-**Status:** v2 — deeper teardown: SERP contract, eligibility policy, evaluation loops, ecosystem economics, and rollout guardrails
+**Date:** 17 Mar 2026  
+**Status:** v3 — added system architecture diagram, KPI scorecard, freshness/breaking-news handling, and clearer publisher value-exchange options
 
 > Notes on sources: This teardown is based on product understanding and public industry patterns. Exact ranking/ads policies, model behavior, and UI labels below are *representative*, not official.
 
 ---
 
-## What changed in v2 (vs v1)
-- Added a clearer **operating model**: query understanding → eligibility → grounded answer → actions → measurement.
-- Expanded **SERP UX mechanics**: citations, uncertainty display, and conversational follow-ups without losing intent.
-- Added **publisher ecosystem lens**: traffic/value exchange, attribution quality, and long-term incentives.
-- Deepened **ads integration constraints**: trust separation, commercial intent routing, and measurement.
-- Added a practical **evaluation stack**: offline evals, human rating, online guardrails, and counterfactuals.
-- Added a **rollout playbook**: eligibility ramp, high-risk query gating, incident response.
+## What changed in v3 (vs v2)
+- Added a **Mermaid system diagram** of the AI SERP pipeline (eligibility → retrieval → generation → citations → ads/vertical routing → logging/evals).
+- Added a **practical KPI scorecard** (user success, trust/safety, publisher health, revenue) with example metric definitions.
+- Expanded **freshness + breaking news** tactics: query classing, cache strategy, time-decay, source constraints, and safe fallbacks.
+- Made the **publisher value exchange** more explicit with concrete UX/mechanism options (qualified clicks, claim-anchored citations, deeper attribution, licensing).
 
 ---
 
@@ -81,9 +79,52 @@ Measure: satisfaction + ecosystem + revenue
 
 ---
 
-## 4) What changes when you add AI to Search
+## 4) System architecture: AI-enhanced SERP pipeline
+This is the “operating system” view of AI Search.
 
-### 4.1 The SERP contract shifts
+```mermaid
+flowchart LR
+  user["User"] --> query["Query input"]
+  query --> understand["Intent understanding"]
+  understand --> risk["Risk and policy classification"]
+
+  risk --> elig["Eligibility decision"]
+  elig -->|"AI answer allowed"| retrieve["Retrieval from index"]
+  elig -->|"AI answer not allowed"| serpClassic["Classic SERP"]
+
+  retrieve --> sources["Source selection and diversity"]
+  sources --> ground["Grounded generation"]
+  ground --> cite["Claim-anchored citations"]
+  cite --> compose["SERP composition"]
+
+  compose --> aiBlock["AI answer block"]
+  compose --> organic["Organic results"]
+  compose --> verticals["Vertical routing"]
+  compose --> ads["Ads routing"]
+
+  aiBlock --> actions["Actions and follow-ups"]
+  organic --> actions
+  verticals --> actions
+  ads --> actions
+
+  actions --> logs["Logging and feedback"]
+  logs --> evals["Offline evals and human rating"]
+  logs --> online["Online guardrails and rollout"]
+  evals --> updates["Model and policy updates"]
+  online --> updates
+  updates --> elig
+```
+
+**Key PM levers hidden in the diagram:**
+- **Eligibility** is where product policy becomes code (and where most mistakes get prevented).
+- **Retrieval + source selection** determines both *truthfulness* and *publisher outcomes*.
+- **SERP composition** is where you protect monetization without corrupting trust.
+
+---
+
+## 5) What changes when you add AI to Search
+
+### 5.1 The SERP contract shifts
 Traditional contract: *“We’ll rank the best documents.”*
 
 AI contract: *“We’ll produce the best response (with sources) — and sometimes you won’t need to click.”*
@@ -94,14 +135,14 @@ This creates new product obligations:
 - **Choice** must remain (multiple sources, perspectives)
 - **Freshness** must be guarded (time-sensitive answers)
 
-### 4.2 Retrieval + generation becomes a product primitive
+### 5.2 Retrieval + generation becomes a product primitive
 The user experience quality depends on:
 - **Retrieval**: what sources are eligible and selected
 - **Grounding**: how tightly the answer is constrained to sources
 - **Presentation**: citations, quotes, source diversity
 - **Follow-ups**: conversation that doesn’t lose the original intent
 
-### 4.3 New failure modes
+### 5.3 New failure modes
 - Confident wrong answers (hallucinations)
 - Citation errors (misattribution)
 - Stale info (freshness gaps)
@@ -110,7 +151,7 @@ The user experience quality depends on:
 
 ---
 
-## 5) Information architecture (IA): the “AI SERP”
+## 6) Information architecture (IA): the “AI SERP”
 A representative AI-enhanced SERP contains:
 - **AI answer block** (summary + sections + steps)
 - **Citations** (links; ideally anchored to claims)
@@ -126,7 +167,7 @@ A representative AI-enhanced SERP contains:
 
 ---
 
-## 6) The policy engine: when should AI answer?
+## 7) The policy engine: when should AI answer?
 A good heuristic policy (not official):
 
 **AI should answer when:**
@@ -149,7 +190,38 @@ A good heuristic policy (not official):
 
 ---
 
-## 7) Ads + monetization: integrating intent with AI (without losing trust)
+## 8) Freshness + breaking news (where AI answers get dangerous)
+Freshness isn’t one thing; it’s a set of policies + infrastructure decisions.
+
+### 8.1 Query classing (freshness sensitivity)
+Common classes:
+- **Evergreen**: stable facts and concepts (OK to answer with cached generation)
+- **Periodic**: things that change monthly/annually (answer with timestamp + sources)
+- **Real-time / breaking**: news, disasters, elections, prices, live sports (extreme constraints)
+
+### 8.2 Practical tactics
+- **Time-aware retrieval**: prefer sources with a publish/updated timestamp, apply time decay.
+- **Generation caching strategy**:
+  - cache only for evergreen queries
+  - short TTL for periodic queries
+  - *avoid caching* for breaking topics
+- **Source constraints** for breaking topics:
+  - require multiple independent sources
+  - constrain to high-trust news providers / primary sources
+  - escalate to “sources-first” UI when constraints fail
+- **UI truthfulness**:
+  - show “as of <time>”
+  - show “what we know / what we don’t know” for unfolding events
+
+### 8.3 Safe fallbacks
+When freshness confidence is low:
+- show a **News module + diverse headlines**
+- show **timelines** (what changed since last update)
+- show **classic links** and let the user choose
+
+---
+
+## 9) Ads + monetization: integrating intent with AI (without losing trust)
 Search monetization works because it captures **intent at the moment of need**.
 
 AI can either:
@@ -166,7 +238,7 @@ AI can either:
 
 ---
 
-## 8) The publisher ecosystem problem (the uncomfortable part)
+## 10) The publisher ecosystem problem (the uncomfortable part)
 AI answers reduce clicks. That’s the point.
 
 But the web’s long-run health requires some exchange:
@@ -179,40 +251,71 @@ If AI absorbs demand without a compensating loop, the ecosystem degrades:
 - more SEO spam and content farms
 - lower retrieval quality → worse AI answers
 
-**What “good” might look like (principles):**
-- citation UX that drives *qualified* clicks (not just token links)
-- source diversity (avoid monoculture)
-- attribution that is legible and claim-anchored
-- anti-abuse systems that penalize AI-targeted spam
+### 10.1 What “good exchange” might look like
+Concrete mechanism options (not endorsements):
+- **Claim-anchored citations** (each major claim has a visible, clickable source)
+- **Qualified click design**:
+  - citations are placed where curiosity peaks (not buried)
+  - “read more” expands into publisher previews that still drive visits
+- **Source diversity guarantees** to prevent monoculture
+- **Attribution quality metrics** (track if users consider citations useful)
+- **Licensing / revenue sharing** for certain content classes (high-value, high-cost reporting)
+
+**Anti-abuse requirement:** whatever incentive you create will be gamed. You need strong spam resistance for “AI citation SEO”.
 
 ---
 
-## 9) Evaluation stack (how you avoid shipping hallucinations at scale)
+## 11) Evaluation stack (how you avoid shipping hallucinations at scale)
 A realistic evaluation stack has layers:
 
-### 9.1 Offline evaluation
+### 11.1 Offline evaluation
 - curated test sets by intent and risk
 - factuality and citation correctness checks
 - freshness tests (time-sensitive queries)
 
-### 9.2 Human rating
+### 11.2 Human rating
 - “is this correct?” plus “is this helpful?”
 - policy compliance
 - citation relevance
 
-### 9.3 Online guardrails
+### 11.3 Online guardrails
 - eligibility gates (don’t answer certain classes)
 - runtime checks (source count, confidence thresholds)
 - fallback strategy (links-only or vertical modules)
 
-### 9.4 Counterfactuals and bias
+### 11.4 Counterfactuals and bias
 Ranking + AI answers create feedback loops. You need:
 - logs that record what alternatives were available
 - metrics that correct for position bias
 
 ---
 
-## 10) Rollout playbook (how you ship without breaking everything)
+## 12) KPI scorecard (what you should actually monitor)
+If you don’t measure all four, you’ll optimize into a corner.
+
+### 12.1 User success (utility)
+- **Task success rate**: sessions where user stops reformulating and takes a satisfying action
+- **Reformulation rate**: how often users re-query after seeing AI answer
+- **Time-to-first-satisfying-action**: time to click/call/navigate/save
+
+### 12.2 Trust + safety (truthfulness)
+- **Critical error rate**: high-severity incorrect/unsafe answers per 10k queries
+- **Citation correctness**: % citations that truly support the claim they’re attached to
+- **Policy violation rate**: content that violates safety/policy gates
+
+### 12.3 Publisher ecosystem health (supply-side)
+- **Qualified outbound traffic**: not just clicks, but engaged visits from citations
+- **Traffic delta by query cluster**: winners/losers by topic category
+- **Source diversity index**: concentration of citations among top domains
+
+### 12.4 Revenue + long-run sustainability
+- **Commercial intent capture**: % Buy queries that reach shopping/merchant actions
+- **Ads trust metrics**: misclicks, complaints, ad-label recognition (survey/rater)
+- **Retention / habit**: user return rate, query frequency over time
+
+---
+
+## 13) Rollout playbook (how you ship without breaking everything)
 - Start with low-risk **Know** queries
 - Add language/geo gradually
 - Keep a hard “kill switch” per category (medical, finance, breaking news)
@@ -229,7 +332,7 @@ Ranking + AI answers create feedback loops. You need:
 
 ---
 
-## 11) What I’d do as the PM (30–60–90 day plan)
+## 14) What I’d do as the PM (30–60–90 day plan)
 
 ### First 30 days: define the contract
 - Define eligibility policy by intent bucket + risk class
@@ -248,7 +351,7 @@ Ranking + AI answers create feedback loops. You need:
 
 ---
 
-## 12) Moats and threats
+## 15) Moats and threats
 
 ### Moats
 - index quality + freshness + multilingual coverage
@@ -263,8 +366,9 @@ Ranking + AI answers create feedback loops. You need:
 
 ---
 
-## 13) Open questions (worth debating)
+## 16) Open questions (worth debating)
 - What is the right **economic exchange** with publishers in an AI-first SERP?
 - How do we communicate **uncertainty** without confusing users?
 - What’s the right UX for “multiple perspectives” when the model synthesizes?
 - Should AI answers be cached/served like snippets, or generated per user/context?
+- What is the steady-state contract for **breaking news**: answer vs. sources-first?
