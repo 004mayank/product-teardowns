@@ -28,6 +28,7 @@ As a Product Manager, I use teardowns to:
 - Skyscanner – Search to Booking Funnel
 - Linkedin - Product breakdown **(In Progress)**
 - Instagram - DMs
-- Cred - UPI 
+- Cred - UPI
+- GitHub – Collaboration & shipping loop (v1)
 
 More teardowns will be added iteratively to this repo.
