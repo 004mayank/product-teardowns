@@ -1,200 +1,176 @@
-# GitHub — Product Teardown (v2)
+# GitHub — Product Teardown (v3)
 
-## 0) TL;DR
-GitHub is the default **system of record for software change**: it stores code, turns changes into reviewable proposals (PRs), gates them with policy + automation (checks), and then broadcasts outcomes (merge/release) to humans and tools.
-
-The product’s durable advantage is not “git hosting” — it’s the **workflow standard** (PR + branches + checks), the **identity/permission graph**, and the **ecosystem** (Actions, Marketplace, integrations) that compounds switching costs.
+> Lens: Product Manager • Scope: publicly observable behavior + general software industry patterns (no internal GitHub metrics claims)
 
 ---
 
-## 1) Positioning
+## Product in one sentence
+GitHub is the **system of record for software change**: it hosts code and package artifacts, turns changes into reviewable proposals (PRs), enforces governance with policy + automation (checks), and broadcasts outcomes (merge/release/security) to humans and tools.
 
-**What it is:** A developer collaboration platform that hosts git repositories, enables review and governance, coordinates work, and automates software delivery.
+---
 
-**Core promise:** Make building software **collaborative, auditable, and shippable** — from idea → code → review → release.
+## 0) TL;DR
+- GitHub’s durable edge is not “git hosting” — it’s the **workflow standard** (branch → PR → checks → merge), the **identity & permission graph** (orgs/teams/CODEOWNERS/audit), and the **ecosystem** (Actions, Marketplace, integrations) that compounds over time.
+- The center of gravity is the **Pull Request as the decision surface**: discussion + review + CI signals + policy gating in one place.
+- The product’s hardest ongoing problem is **attention routing**: getting the *right* humans to look at the *right* changes and making the automation signal trustworthy.
 
-### Target users
-- **Primary:** Software teams (startups → enterprise) shipping production code.
-- **Secondary:** Open-source maintainers & contributors; DevOps/SRE; security/compliance teams; students/learners.
+---
+
+## 1) Who it serves
+### Primary users
+- **Software teams** (startups → enterprise) shipping production code.
+- **Open-source maintainers and contributors** coordinating across org boundaries.
+
+### Secondary users
+- **Security / compliance** teams (policy, evidence, audit, vulnerability workflows).
+- **DevOps / SRE** (CI/CD, release workflows, reliability of automation).
+- **Students / learners** (portfolio + contribution graph).
 
 ### Jobs-to-be-done
 - “Help me ship changes safely, with the right people involved, and a durable record of what happened.”
-- “Help me run engineering governance without slowing developers to a crawl.”
+- “Help me enforce engineering governance without slowing developers to a crawl.”
 - “Help my project attract contributors and keep the community healthy.”
 
-### When GitHub is the obvious choice
-- You want a **standard workflow** (branching + PR review) that everyone already understands.
-- You need **visibility & accountability** (history, audit trails, code ownership).
-- You want **automation and integrations** close to the code (CI, checks, bots, deployments).
+---
+
+## 2) Value props → measurable outcomes
+For a team:
+- **Throughput with safety** → PR cycle time (open→first review, open→merge), regression rate, change failure rate.
+- **Governance** → % merges that complied with branch rules, bypass attempts, audit completeness.
+- **Automation close to code** → CI setup time, flaky rate, mean time to diagnose failures.
+
+For OSS maintainers:
+- **Contribution friendliness** → time-to-first-response, contributor conversion (first-time → repeat), moderation time.
+- **Trust signals** → security posture indicators, dependency insights, release hygiene.
 
 ---
 
-## 2) Product model (objects + primitives)
-
+## 3) Product model (objects + primitives)
 ### Core objects
-- **User / Organization / Enterprise:** Identity + policy boundary + billing.
-- **Repository:** Container for code, configuration, issues, actions, security, packages.
-- **Branch / Commit:** Immutable history and lines of development.
-- **Pull Request:** Proposal to merge changes + discussion + review + checks.
-- **Review / Comment / Suggestion:** Human approval + feedback.
-- **Check / Status:** CI signals attached to commits/PRs.
-- **Issue / Discussion:** Problem statement + async coordination.
-- **Label / Milestone / Assignee:** Triage primitives.
-- **Project:** Planning surface (boards/roadmaps) aggregating issues/PRs.
-- **Release / Tag:** Versioned milestone.
-- **Workflow (Actions):** Automation graph triggered by repo events.
-- **Package / Artifact:** Build outputs (Packages, Releases, Actions artifacts).
+- **User / Organization / Enterprise**: identity boundary, policy, billing.
+- **Repository**: container for code + configuration + history + collaboration surfaces.
+- **Branch / Commit**: immutable history and lines of development.
+- **Pull Request**: change proposal + discussion + review + checks + merge decision.
+- **Review / Comment / Suggestion**: human approval + feedback.
+- **Check / Status**: automation signals attached to commits/PRs.
+- **Issue / Discussion**: problem statement + async coordination.
+- **Label / Milestone / Assignee**: triage primitives.
+- **Project**: planning layer aggregating issues/PRs.
+- **Release / Tag**: versioned milestone.
+- **Workflow (Actions)**: automation graph triggered by repo events.
+- **Package / Artifact**: build outputs (Packages, Releases, Actions artifacts).
 
-### High-leverage primitives
-- **Protected branches:** Required reviews/checks; restrict pushes.
-- **CODEOWNERS:** Review routing / ownership enforcement.
-- **Required status checks:** Makes CI a gate, not just “info.”
-- **Search:** Code + issues/PRs + users + repos (filters are power-user leverage).
-- **Notifications:** Attention routing across mentions, review requests, subscriptions.
-- **Permissions:** Repo/org roles; SSO/SAML; fine-grained tokens (enterprise).
+### High-leverage primitives (the “governance toolkit”)
+- **Protected branches**: require reviews/checks; restrict pushes.
+- **CODEOWNERS**: review routing and ownership enforcement.
+- **Required status checks**: turns CI into a gate, not just “FYI.”
+- **Search** (code + issues/PRs): power-user productivity and discovery.
+- **Notifications**: attention router across mentions, review requests, subscriptions.
+- **Permissions**: org roles, teams, fine-grained tokens, SSO/SAML, audit logs.
 
 ---
 
-## 3) Core loops
-
+## 4) Core loops (why usage compounds)
 ### Loop A — Team shipping loop (Branch → PR → Review → Merge → Deploy)
-**Goal:** Ship changes quickly without breaking production.
-
-1. Developer creates branch and commits changes.
-2. Opens PR with context, linked issues, screenshots, rollout notes.
-3. Review is requested (directly or via CODEOWNERS).
-4. CI runs (tests, lint, build, security scans) and reports as Checks.
-5. Review feedback cycles; author updates.
+1. Create branch and commits.
+2. Open PR with context (why, risk, rollout).
+3. Review requested (directly or via CODEOWNERS).
+4. CI runs (tests/lint/build/security scans) and reports checks.
+5. Iterate on feedback.
 6. Merge via policy (merge/squash/rebase).
-7. Actions optionally deploys, cuts releases, updates changelogs.
+7. Actions optionally deploys, cuts release, updates changelog.
 
-**Why it reinforces:** Reliable checks + predictable review = higher throughput and more trust in “main is safe.”
+Reinforcement: when checks are reliable and routing is good, teams trust “main is safe,” which increases velocity and standardizes more work onto GitHub.
 
 ### Loop B — Coordination loop (Issue → Triage → Plan → PR)
-**Goal:** Turn ambiguous problems into trackable work linked to code.
-
 - Issues become a shared queue.
-- Projects provide status + roadmap surfaces.
+- Projects provide planning surfaces.
 - PRs link back to issues, creating traceability from “why” → “what changed.”
 
-### Loop C — Open-source contribution loop (Discover → Fork → PR → Merge → Reputation)
-**Goal:** Enable contribution across org boundaries.
-
+### Loop C — OSS contribution loop (Discover → Fork → PR → Merge → Reputation)
 - Discovery via search/stars/dependencies.
 - Contribution via forks + PRs.
-- Reputation via profiles, graphs, and visible work history.
+- Reputation via public work history and graphs.
 
 ### Loop D — Automation loop (Event → Workflow → Signal → Human action)
-**Goal:** Turn repo events into automated verification and operational outcomes.
-
-- PR opened → CI runs → check results gate merge.
+- PR opened → workflow runs → check results gate merge.
 - Merge → build → deploy → release notes.
 
-### Loop E — Security & compliance loop (Policy → Detection → Remediation → Audit)
-**Goal:** Keep software safe while creating provable evidence.
-
-- Branch rules + code review + mandatory checks.
-- Secret scanning, dependency alerts, code scanning.
-- Audit logs + evidence for compliance.
-
 ---
 
-## 4) Key surfaces (how the product is experienced)
-
-### 4.1 Repository home
-- README, file tree, default branch view.
-- Trust builders: stars/forks, releases, security indicators, activity.
-
-### 4.2 Pull Requests (the “decision surface”)
+## 5) Key surfaces (where the experience is won or lost)
+### 5.1 Pull Requests: the decision surface
 - Diff + conversation + checks + approvals.
 - Merge controls + policy visibility.
-- This is the product’s center of gravity.
+- “PR quality” (context, screenshots, rollout notes) is a major determinant of review time.
 
-### 4.3 Code review UX
-- Inline comments, suggestions, viewed state, batch review.
-- Tension: **high-quality review** vs **review fatigue**.
+### 5.2 Code review UX
+- Inline comments, suggestions, batch review, viewed state.
+- Core tension: **high-quality review** vs **review fatigue**.
 
-### 4.4 Issues + Discussions
+### 5.3 Issues + Discussions
 - Templates/forms, labels, milestones.
-- Maintainer ergonomics is the bottleneck at scale (triage + spam).
+- At scale, maintainer ergonomics (triage + spam + moderation) becomes the bottleneck.
 
-### 4.5 Projects
-- Planning surface across repos.
-- Hard problem: flexible enough for every team without becoming a blank spreadsheet.
+### 5.4 Notifications
+- The attention router; if it’s noisy, users route it to Slack or ignore it.
 
-### 4.6 Search & discovery
-- Code search and global search drive both productivity and network effects.
-
-### 4.7 Notifications
-- The attention router. If it’s noisy, users route everything to Slack or ignore it.
-
-### 4.8 Actions
+### 5.5 Actions
 - YAML authoring, runners, logs, artifacts.
-- Strong lock-in: CI/CD definitions live next to code, with deep integration into PR gating.
+- Lock-in: CI/CD definitions live next to code and integrate deeply into PR gating.
 
-### 4.9 Marketplace & integrations
-- Apps, checks, bots, security tools.
-- The ecosystem is a moat; the ecosystem also creates complexity and support burden.
+### 5.6 Search & discovery
+- Code search and global search drive productivity and network effects.
 
 ---
 
-## 5) Business model (how GitHub makes money)
-
-### Primary revenue streams
-- **Seat-based subscriptions**: Team/Enterprise plans (governance, security, compliance).
+## 6) Business model (how GitHub makes money)
+- **Seat-based subscriptions** (Team/Enterprise): governance, compliance, security posture.
 - **Consumption**: Actions minutes, storage, hosted runners.
-- **Add-ons**: Advanced Security, governance features, enterprise support.
+- **Add-ons**: Advanced Security, enterprise support.
 
-### The pricing “truth”
-GitHub monetizes where it creates enterprise-grade certainty:
-- policy enforcement
-- auditability
-- security tooling
-- operational scale (runners, reliability)
+Pricing truth: GitHub monetizes where it creates **enterprise-grade certainty** (policy enforcement, auditability, security, operational scale).
 
 ---
 
-## 6) Moats & switching costs
-
+## 7) Moats & switching costs
 ### Moats
-- **Workflow standardization**: PRs, checks, and branch protection are universal language.
-- **Identity + permission graph**: org membership, teams, repo permissions, SSO.
-- **Network effects**: OSS discovery, reputations, contributors, dependency graphs.
-- **Ecosystem**: Marketplace + integrations; “everything connects to GitHub.”
+- **Workflow standardization**: PRs/checks/branch protection are the industry’s shared language.
+- **Identity + permissions graph**: org membership, teams, repo permissions, SSO.
+- **Network effects**: OSS discovery, reputation, dependency graph.
+- **Ecosystem**: marketplace apps, bots, security tools, CI providers.
 
-### Switching costs (what actually traps you)
+### Switching costs
 - Actions workflows and CI/CD plumbing.
-- Governance rules, audit posture, security baselines.
+- Governance rules + audit posture + security baselines.
 - Cross-linking of issues/PRs/releases across years.
-- Team habits and muscle memory.
+- Team muscle memory and external integrations.
 
 ---
 
-## 7) Competitive landscape (why GitHub keeps winning)
-
-- **GitLab**: stronger single-application DevOps story; wins when buyers want “one tool” with deep CI/CD.
+## 8) Competitive landscape (why GitHub keeps winning)
+- **GitLab**: strongest “single application” DevOps story; wins when buyers want one tool with deep CI/CD.
 - **Bitbucket**: fits Atlassian ecosystems.
-- **Self-hosted git**: chosen for control/compliance, but often loses on UX + ecosystem.
+- **Self-hosted git**: chosen for control/compliance; often loses on UX + ecosystem + default-status.
 
-Opinion: GitHub wins because it’s the **default social + operational layer** for software, not because it’s the best at any single sub-feature.
+Opinion: GitHub wins because it’s the **default social + operational layer** for software, not because it’s best at every sub-feature.
 
 ---
 
-## 8) Metrics & instrumentation plan
-
-### North Star (team/org)
+## 9) Metrics & instrumentation plan (what I’d track)
+### North Star
 **Weekly Active Repos with Successful Merges (WAR-SM)**
-- Repo counts in a week if:
+- A repo counts in a week if:
   - ≥ N distinct contributors (authors or reviewers)
-  - and ≥ M PRs merged
-  - and ≥ X% of merged PRs passed required checks
+  - ≥ M PRs merged
+  - ≥ X% of merged PRs passed required checks
 
 ### Leading indicators
-- **PR cycle time**: open → first review; open → merge (p50/p90).
+- **PR cycle time**: open→first review; open→merge (p50/p90).
 - **Review health**: % PRs reviewed within T hours; approvals per PR; comment depth.
 - **CI reliability**: pass rate, flaky rate, median CI duration.
 - **Policy compliance**: protected-branch merges; bypass attempts.
-- **Traceability**: % PRs linked to issues; auto-close on merge rate.
+- **Traceability**: % PRs linked to issues; auto-close-on-merge rate.
 - **Notification overload**: mute/unwatch rate; ignored review requests.
 
 ### OSS health (maintainer lens)
@@ -205,26 +181,15 @@ Opinion: GitHub wins because it’s the **default social + operational layer** f
 
 ---
 
-## 9) Key trade-offs & constraints
-
-### 9.1 Flexibility vs standardization
-GitHub has to serve solo projects, enterprises, and chaotic open source.
-
-Opinion: GitHub should keep the **core loop (PR + checks + policy)** extremely strong and make everything else extensible.
-
-### 9.2 Security vs developer speed
-Too many gates slow teams and encourage bypass behavior; too few gates increase incidents.
-
-### 9.3 Ecosystem power vs platform complexity
-Every integration increases value and surface area (support, permissions, security).
-
-### 9.4 Moderation at scale
-OSS is vulnerable to spam, low-quality issues, and supply-chain threats.
+## 10) Key trade-offs & constraints
+- **Flexibility vs standardization**: serve solo projects, enterprises, and chaotic OSS.
+- **Security vs developer speed**: too many gates cause bypass; too few cause incidents.
+- **Ecosystem power vs platform complexity**: every integration increases value and risk.
+- **Moderation at scale**: spam and low-quality issues are a constant tax.
 
 ---
 
-## 10) What I would prioritize (PM 30–60–90)
-
+## 11) What I would prioritize (PM 30–60–90)
 ### First 30 days
 - Segment: enterprise vs SMB vs OSS maintainers.
 - Baseline:
@@ -232,17 +197,17 @@ OSS is vulnerable to spam, low-quality issues, and supply-chain threats.
   - CI duration + flakiness
   - notification overload signals
   - maintainer backlog + spam rate
-- Pick top 2 friction clusters (review latency, CI noise, issue spam).
+- Pick top 2 friction clusters (commonly: review latency, CI noise, issue spam).
 
-### 60 days
-- **Review routing**: load-aware reviewer suggestions (CODEOWNERS + activity + team load).
-- **PR quality nudges**: require “why / risk / rollout” fields; highlight risky diffs.
-- **CI signal clarity**: dedupe flaky failures; clearer failing-step attribution.
+### Next 60 days
+- **Review routing**: load-aware reviewer suggestions (CODEOWNERS + recent activity + team load) and clearer “why you were requested.”
+- **PR quality nudges**: lightweight required fields (why / risk / rollout) and better templates.
+- **CI signal clarity**: dedupe flaky failures, highlight root-cause step, and summarize failures in PR.
 
-### 90 days
-- **Review inbox**: priority ranking, SLA views, and batching to reduce fatigue.
-- **Maintainer tooling**: spam-resistant issue intake (forms, rate limits, reputation).
-- **Org insights**: dashboards connecting throughput (cycle time) to quality proxies.
+### Next 90 days
+- **Review inbox**: priority ranking, batching, SLA views, and “unblock me” shortcuts.
+- **Maintainer tooling**: spam-resistant issue intake (forms + rate limits + reputation signals).
+- **Org insights**: dashboards connecting throughput (cycle time) to quality proxies (incidents, reverts, flaky checks).
 
 ---
 
