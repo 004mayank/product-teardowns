@@ -1,4 +1,4 @@
-# GitHub — Product Teardown (v3)
+# GitHub - Product Teardown 
 
 > Lens: Product Manager • Scope: publicly observable behavior + general software industry patterns (no internal GitHub metrics claims)
 
@@ -10,7 +10,7 @@ GitHub is the **system of record for software change**: it hosts code and packag
 ---
 
 ## 0) TL;DR
-- GitHub’s durable edge is not “git hosting” — it’s the **workflow standard** (branch → PR → checks → merge), the **identity & permission graph** (orgs/teams/CODEOWNERS/audit), and the **ecosystem** (Actions, Marketplace, integrations) that compounds over time.
+- GitHub’s durable edge is not “git hosting” - it’s the **workflow standard** (branch → PR → checks → merge), the **identity & permission graph** (orgs/teams/CODEOWNERS/audit), and the **ecosystem** (Actions, Marketplace, integrations) that compounds over time.
 - The center of gravity is the **Pull Request as the decision surface**: discussion + review + CI signals + policy gating in one place.
 - The product’s hardest ongoing problem is **attention routing**: getting the *right* humans to look at the *right* changes and making the automation signal trustworthy.
 
@@ -71,7 +71,7 @@ For OSS maintainers:
 ---
 
 ## 4) Core loops (why usage compounds)
-### Loop A — Team shipping loop (Branch → PR → Review → Merge → Deploy)
+### Loop A - Team shipping loop (Branch → PR → Review → Merge → Deploy)
 1. Create branch and commits.
 2. Open PR with context (why, risk, rollout).
 3. Review requested (directly or via CODEOWNERS).
@@ -82,17 +82,17 @@ For OSS maintainers:
 
 Reinforcement: when checks are reliable and routing is good, teams trust “main is safe,” which increases velocity and standardizes more work onto GitHub.
 
-### Loop B — Coordination loop (Issue → Triage → Plan → PR)
+### Loop B - Coordination loop (Issue → Triage → Plan → PR)
 - Issues become a shared queue.
 - Projects provide planning surfaces.
 - PRs link back to issues, creating traceability from “why” → “what changed.”
 
-### Loop C — OSS contribution loop (Discover → Fork → PR → Merge → Reputation)
+### Loop C - OSS contribution loop (Discover → Fork → PR → Merge → Reputation)
 - Discovery via search/stars/dependencies.
 - Contribution via forks + PRs.
 - Reputation via public work history and graphs.
 
-### Loop D — Automation loop (Event → Workflow → Signal → Human action)
+### Loop D - Automation loop (Event → Workflow → Signal → Human action)
 - PR opened → workflow runs → check results gate merge.
 - Merge → build → deploy → release notes.
 
@@ -211,7 +211,7 @@ Opinion: GitHub wins because it’s the **default social + operational layer** f
 
 ---
 
-## Appendix — GitHub system map (conceptual)
+## Appendix - GitHub system map (conceptual)
 
 ```mermaid
 flowchart LR
