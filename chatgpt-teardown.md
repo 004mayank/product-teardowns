@@ -1,4 +1,4 @@
-# ChatGPT — Product teardown (v1)
+# ChatGPT — Product teardown (v2)
 
 > Lens: Product Manager. Focus: user problems, journeys, metrics, trade-offs, and what to build next.
 

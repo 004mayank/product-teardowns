@@ -30,6 +30,6 @@ As a Product Manager, I use teardowns to:
 - Instagram - DMs
 - Cred - UPI
 - GitHub – Collaboration & shipping loop (v1)
-- ChatGPT – Product teardown (v1)
+- ChatGPT – Product teardown (v2)
 
 More teardowns will be added iteratively to this repo.
