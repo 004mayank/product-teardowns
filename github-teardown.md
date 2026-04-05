@@ -1,6 +1,6 @@
 # GitHub - Product Teardown 
 
-> Lens: Product Manager • Scope: publicly observable behavior + general software industry patterns (no internal GitHub metrics claims)
+> Lens: Product Manager, Scope: publicly observable behavior + general software industry patterns (no internal GitHub metrics claims)
 
 ---
 
