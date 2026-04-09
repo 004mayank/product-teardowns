@@ -1,4 +1,4 @@
-# ChatGPT — Product teardown (v3)
+# ChatGPT - Product teardown 
 
 > Lens: Product Manager. Focus: user problems, journeys, metrics, trade-offs, and what to build next.
 
@@ -11,7 +11,7 @@ At a high level it solves:
 - **Translation layer**: converting between natural language and structured outputs (plans, code, tables, templates).
 - **Low-friction learning**: explanations, examples, practice.
 
-The product’s core promise is not *accuracy*; it’s **helpfulness at speed** — getting you to a better answer faster, with conversational iteration.
+The product’s core promise is not *accuracy*; it’s **helpfulness at speed** - getting you to a better answer faster, with conversational iteration.
 
 What’s changed in the last couple years is that “ChatGPT” is no longer one product loop; it’s a **bundle of loops** (chat + tools + multimodal + memory/workspaces) that compete on *outcome* not just answers.
 
