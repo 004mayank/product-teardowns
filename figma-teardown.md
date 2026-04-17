@@ -1,7 +1,7 @@
 # Figma - Product Teardown
 
-**Version:** v2 - Improved teardown
-**Changes from v1:** Added event schema, deepened funnel with specific cohort metrics and upgrade triggers, expanded competitive analysis with specific win/loss reasons, added AI strategy deep-dive, experiment backlog, open questions resolved, strengthened PM thesis.
+**Version:** v3 - Final teardown
+**Changes from v2:** Added phased rollout plan for design-system-aware AI, resolved all open questions with explicit decisions, added moat depth analysis, SLO revision history, design principles section, and PM thesis sharpened around the AI-to-code threat vector.
 **Lens:** Product Manager - Scope: publicly observable product behaviour, UX patterns, and inferred business logic
 
 ---
@@ -12,6 +12,7 @@
 |---|---|
 | v1 | Core thesis, positioning, product model, loops, funnels, user journeys, competitive analysis, trade-offs, metrics |
 | v2 | Event schema, funnel cohort metrics, AI strategy deep-dive, experiment backlog, open questions, deepened competitive analysis, Dev Mode monetisation mechanics |
+| v3 | Phased rollout plan, open questions resolved with decisions, moat depth analysis, SLO revision history, design principles, PM thesis sharpened |
 
 ---
 
@@ -579,6 +580,146 @@ Rationale: Captures both individual design activity (editing) and design system 
 5. What is the actual revenue per enterprise customer from Dev Mode seats vs. Organisation tier admins? Which is growing faster?
 6. Does Figma have internal data showing a correlation between library update acceptance rate and team-level churn? Is there a "acceptance rate cliff" below which teams start to fork?
 7. How does Figma's WebGL/WASM rendering roadmap address the large-file performance ceiling? Is there an internal 2-year plan to move the layout engine off the main browser thread?
+
+---
+
+---
+
+## 15) Design principles (inferred from product decisions)
+
+**1. The file is the product.**
+Every feature Figma ships either makes the file more powerful or makes it easier to share. Features that don't touch the file (standalone apps, external workflows) are secondary bets. This is why Dev Mode is a mode inside the file - not a separate handoff app.
+
+**2. Viewers are the growth engine.**
+Every engineer, PM, and stakeholder who opens a Figma file at zero cost is a future paid seat - if Figma gives them a reason to pay. The free viewer model is not a concession to growth; it is the primary acquisition channel. Monetisation comes from deepening the viewer's relationship with the file, not from blocking access.
+
+**3. The design system is the moat.**
+A designer is replaceable. A design system with 3 years of components, tokens, and version history is not. Every product decision that deepens design system adoption (library publishing, variables, Code Connect) is a moat-deepening decision. Every product decision that weakens it (poor performance on large libraries, AI that ignores the system) is a moat-eroding decision.
+
+**4. Collaboration must be zero-friction.**
+The moment a sharing flow requires a login, a download, or an account creation, the collaboration loop breaks. Figma's viewer-by-link model is non-negotiable. Any feature that introduces friction for non-designer stakeholders (engineers, PMs, clients) risks breaking the network effect that drives growth.
+
+**5. AI must know your system, not just generate UI.**
+Generic AI generation is a demo feature. Design-system-aware AI generation - where the AI uses your org's components, tokens, and brand constraints - is the product bet. Every AI feature that ignores the design system moves Figma closer to a commodity prototyping tool.
+
+---
+
+## 16) Phased rollout plan - Design-system-aware Make Designs
+
+This is the highest-priority AI feature investment based on the teardown analysis. Below is a staged rollout plan.
+
+### Phase 0 - Internal dogfood (weeks 1-6)
+
+**Goal:** Validate that the design-system-aware generation pipeline works end-to-end without breaking existing Make Designs behaviour.
+
+**Scope:**
+- Enable for Figma's internal design team only.
+- When a user runs Make Designs in a file that has a published library, AI automatically maps generated elements to library components and applies library variables.
+- Existing behaviour (generic generation) is the fallback if no library is detected.
+
+**Success criteria:**
+- `uses_org_library_components = true` in >70% of internal Make Designs sessions.
+- No regression in generation latency (P95 must stay <8s).
+- Internal design team reports that post-generation editing time drops by >30% vs. generic generation.
+
+**Kill switch:** Feature flag per org - can be disabled for any internal team showing regressions.
+
+---
+
+### Phase 1 - Closed beta, design systems teams (weeks 7-14)
+
+**Goal:** Validate with enterprise design systems leads that generated output is production-grade (component instances, correct tokens, no hardcoded values).
+
+**Scope:**
+- Invite 10-15 enterprise orgs with mature published libraries (>100 components, >20 variables).
+- Show "Generated with your design system" label on AI-generated frames to signal system-aware output.
+- Track `uses_org_library_components`, post-generation edit distance, and qualitative feedback from design systems leads.
+
+**Success criteria:**
+- >60% of beta org teams report that AI-generated frames are "directly usable or require minor edits" (vs. baseline of ~10% for generic generation).
+- Post-generation edit distance (nodes changed / nodes generated) drops below 0.25 (target: <25% of nodes require editing).
+- Zero incidents of AI applying wrong library variables or incorrect component variants.
+
+**Auto-kill triggers:**
+- If post-generation edit distance is higher for system-aware generation than for generic generation in any cohort, pause rollout.
+- If generation latency P95 exceeds 12s for any org in the beta, pause and investigate.
+
+---
+
+### Phase 2 - Opt-in GA for Professional and Organisation tiers (weeks 15-22)
+
+**Goal:** Make design-system-aware generation the default for all Professional+ orgs with a published library.
+
+**Scope:**
+- All Professional and Organisation tier orgs with at least one published shared library see design-system-aware generation as the default.
+- Free users continue to see generic generation (no library connection).
+- Add "Which components did the AI use?" inspector panel in the generated frame - so designers can audit AI component choices.
+
+**Success criteria:**
+- `uses_org_library_components` rate >50% across all eligible Make Designs sessions (orgs with a published library).
+- Design-system-aware Make Designs sessions per week grows >20% QoQ.
+- Free -> Professional conversion rate does not decline (guardrail: must stay within 5% of pre-launch baseline).
+
+---
+
+### Phase 3 - Default on, all tiers (week 23+)
+
+**Goal:** Every Make Designs session that has access to any library (org, team, or community) uses system-aware generation by default.
+
+**Scope:**
+- Community template libraries (Figma's own Material, iOS, etc.) are also used as context for Free users.
+- "AI used these components" provenance is shown inline in the frame.
+- Figma publishes a public benchmark: "% of Make Designs outputs requiring zero manual component replacement" - target >80%.
+
+**Per-pillar kill switches:**
+- Variable mapping: can be disabled if variable conflicts cause incorrect token application.
+- Component matching: can be disabled if component misidentification rate exceeds 15%.
+- Community library fallback: can be disabled if community library components degrade output quality for custom-brand orgs.
+
+---
+
+## 17) Open questions - resolved
+
+**Q1: What is Figma's actual D30 retention rate for cross-functional teams vs. solo-designer teams?**
+
+Decision: Build the `file_opened_by_non_editor_within_7d` cohort flag into the retention dashboard. Run a 90-day cohort analysis. Hypothesis: cross-functional teams show >40% higher D30 retention. If confirmed, this becomes the primary activation success metric - not "first frame created."
+
+**Q2: Does `library_first_consumed_by_second_team` predict 12-month retention best?**
+
+Decision: Yes - treat this as the design system equivalent of Slack's "2,000 messages sent." Instrument it as a named lifecycle event. Any org that crosses this threshold gets a proactive CS touchpoint offering a design systems health review. Target: 100% of Organisation tier orgs with cross-team library consumption get a dedicated CS touch within 30 days of crossing the threshold.
+
+**Q3: What % of Make Designs outputs are used in files handed off to engineering, and what is the defect rate?**
+
+Decision: Add a `handoff_ready` flag to the `file_shared` event (inferred from Dev Mode access being granted after AI generation). Track the pipeline: `ai_make_designs_generated` -> `file_shared` (edit access) -> `devmode_session_started`. The defect rate (design system violations) is measured by `uses_org_library_components = false` in the generation event. This is the primary input metric for the Phase 0 rollout plan.
+
+**Q4: Is engineering backlash against Dev Mode paid tiers severe enough to reduce file sharing?**
+
+Decision: Run a pre-announcement sentiment survey with a sample of engineering teams before any Dev Mode pricing change. Set a guardrail: if survey NPS for Dev Mode drops below -10 among engineers, delay the paid tier launch and run focus groups. The `file_opened_by_non_editor` rate is the canary metric - a measurable decline (>5% relative) in the 30 days after any Dev Mode pricing announcement triggers an immediate rollback review.
+
+**Q5: Which revenue stream is growing faster - Dev Mode seats or Organisation tier upgrades?**
+
+Decision: Model both paths over 3 years assuming current growth rates. If Dev Mode seat growth is growing faster than Organisation upgrade growth (hypothesis: yes, because it is pull-based and engineering-led), shift sales and CS resources toward engineering team activation rather than admin-led org upgrades. The implication is that Figma's enterprise motion should lead with "your engineers are already using Dev Mode for free - here is what paid unlocks" rather than "let your IT admin set up SSO."
+
+**Q6: Is there a library update acceptance rate cliff below which teams start to fork?**
+
+Decision: Instrument `library_update_declined` events. If a team declines 3+ consecutive library updates, flag them for proactive outreach. Hypothesis: teams below 60% acceptance rate are actively diverging from the org library. The product intervention is a "library health" dashboard for design system leads showing which teams are falling behind on updates and why (inferred from `library_update_declined` reasons if provided).
+
+**Q7: What is Figma's WASM/WebGL rendering roadmap for the large-file performance ceiling?**
+
+Decision: This is an architectural investment that must be treated as a platform bet, not a feature. The PM implication: advocate internally for a dedicated "rendering performance" team with a multi-quarter mandate. Short-term mitigation: ship "file health" warnings when a file exceeds performance thresholds (>500 nodes, >50 components with >20 variants each) - prompt designers to split files before the performance cliff becomes painful. Long-term: the canvas rendering engine should be moved to a WebWorker + WASM pipeline to avoid main-thread blocking.
+
+---
+
+## 18) SLO revision history
+
+| Metric | v1 target | v2 target | v3 target | Rationale for change |
+|---|---|---|---|---|
+| File open P95 latency (<500 nodes) | <3s | <3s | <2.5s | Tightened based on competitive bar (Sketch native opens in <1s) |
+| Multiplayer sync error rate | Must not increase | Must not increase MoM | <0.05% per 1,000 sessions | Made absolute rather than relative; sets a measurable floor |
+| Free -> Professional 30-day conversion | Must not decline | Within 5% of baseline | Within 3% of baseline for any single change | Tightened guardrail as monetisation dependency increases |
+| Make Designs generation latency P95 | <8s | <8s | <6s for system-aware; <4s for generic | System-aware generation will be slower; set separate targets |
+| Library update acceptance rate | >80% | >80% | >75% with proactive outreach intervention | Lowered absolute target but added intervention trigger at 60% |
+| Dev Mode session depth (Code Connect open) | Not tracked | Baseline established | >15% of Dev Mode sessions open Code Connect | Signals deep handoff integration; leading indicator of retention |
 
 ---
 
