@@ -1,7 +1,7 @@
 # Stripe - Product Teardown
 
-**Version:** v2 - Improved teardown
-**Changes from v1:** Added activation funnel with conversion benchmarks, event schema for core objects, loop-level edge cases, deeper competitive win/loss analysis with specific metrics, answers to v1 open questions, authorisation rate deep-dive, Connect monetisation mix, Stripe Capital and AI billing analysis, regulatory moat assessment, and product-level experiment backlog.
+**Version:** v3 - Final teardown
+**Changes from v2:** Resolved all four v2 open questions (crypto/stablecoin rail, Sigma data products, Terminal/unified commerce, LLM-native API). Added strategic vectors section (2025-2027), metrics framework, 30-60-90 day PM plan, enhanced experiment backlog with rollout phases and acceptance criteria, and version history update.
 **Lens:** Product Manager - Scope: publicly observable product behaviour, developer experience, and inferred business logic
 
 ---
@@ -12,12 +12,15 @@
 |---|---|
 | v1 | Core thesis, positioning, product model, core loops, business model, competitive landscape, trade-offs, open questions |
 | v2 | Activation funnel, event schemas, loop edge cases, competitive benchmarks, open question resolution, authorisation rate mechanics, Connect mix, Capital & AI billing, experiment backlog |
+| v3 | Resolved v2 open questions (crypto rail, Sigma, Terminal, LLM API), strategic vectors 2025-2027, metrics framework, PM 30-60-90 plan, enhanced experiment backlog with acceptance criteria |
 
 ---
 
 ## TL;DR
 
 Stripe won the payments market not by building a cheaper payment processor, but by solving the developer's problem first. Every competitor before Stripe made you sign a merchant agreement, wait two weeks, and then integrate a SOAP API from 2004. Stripe made it seven lines of code and a test key you get in 30 seconds. The developer experience was the product. Now, a decade later, the dev experience is the trojan horse. Stripe's real moat is a compounding stack: the fraud signal network (millions of merchants' transaction data), the merchant identity graph (verified business + banking relationships for millions of companies), and the financial services rails built on top of that trusted identity. Stripe's strategic bet is that every internet business eventually becomes a financial services business - and Stripe wants to own that moment with products like Connect, Issuing, Treasury, and Radar. The risk is that it's building a financial conglomerate with the UX of a startup, and enterprise sales motions are fundamentally different from PLG API adoption.
+
+In 2024-2025 Stripe made three bets that define the next decade: (1) the $1.1B acquisition of Bridge to own stablecoin payment rails before they become commodity infrastructure, (2) expanded LLM-agent-friendly API surfaces targeting agentic AI workflows, and (3) Stripe Terminal's quiet evolution toward unified commerce. The thesis is no longer just "payments for the internet" - it is "financial infrastructure for both human and AI-operated commerce."
 
 ---
 
@@ -43,6 +46,7 @@ Stripe won the payments market not by building a cheaper payment processor, but 
 | Marketplace / platform (Connect) | Enable third parties to accept payments through their platform | First connected account onboarded and first payout sent | Connect pricing premium; highest ARPU segment |
 | Enterprise (large-volume merchant) | Optimise authorisation rates, reduce fraud, manage global tax and compliance | Custom contract; migration from existing processor | Interchange-plus pricing; dedicated support; highest margin |
 | Non-technical business owner | Accept payments without writing code (via Stripe Checkout, Payment Links, Invoicing) | First Payment Link created and shared | Pays for no-code wrappers; lower churn than developer accounts |
+| AI company / LLM product | Monetise token usage with metered or credit-based billing | First API call billed; first usage record submitted | High-growth volume; strong attach for Billing metered features |
 
 *Revenue model fit is inferred from public information, Stripe pricing pages, and industry benchmarks - not internal Stripe data.*
 
@@ -55,6 +59,7 @@ Stripe won the payments market not by building a cheaper payment processor, but 
 - Marketplace or platform model requires splitting payments to sub-merchants - Connect is purpose-built for this; competitors force custom workarounds.
 - Fraud is a live concern - Radar uses cross-network ML trained on millions of Stripe merchants' transactions; no single-merchant fraud system can match its signal density.
 - The team values API quality and documentation - Stripe's developer experience is the strongest in the category.
+- The product is AI-native - Stripe already processes payments for most large AI companies and is building primitives for token-based and agentic commerce.
 
 **Loses when:**
 - Processing volume is extremely high (>$1B/year) and a merchant can negotiate better rates directly with acquiring banks - Adyen's interchange-plus direct model offers lower effective rates for the highest-volume merchants.
@@ -83,6 +88,7 @@ Stripe won the payments market not by building a cheaper payment processor, but 
 | `Transfer` / `Payout` | Moving funds to a connected account or bank | Transfer moves funds between Stripe accounts (Connect); Payout sends funds to an external bank |
 | `Radar Rule` | Custom fraud logic | IF-THEN logic written in Stripe Radar's rule language; layered on top of ML model scores |
 | `Webhook Event` | Async notification of state change | Every significant state change in Stripe emits an event; merchant systems subscribe and react |
+| `Meter` | Usage tracking unit for AI/usage-based billing | Introduced 2024; tracks API-level events and aggregates for billing; the foundation of Stripe's AI billing primitive |
 
 ### Key event schema
 
@@ -132,6 +138,7 @@ Every Stripe event follows a consistent envelope. Understanding this schema is e
 | `charge.dispute.created` | Cardholder filed a chargeback | Immediately begin evidence collection; respond within 7 days |
 | `account.updated` (Connect) | Connected account status changed | Check `payouts_enabled` and `charges_enabled`; gate flows accordingly |
 | `payout.failed` | Payout to bank failed | Alert connected account owner; re-trigger or redirect payout |
+| `billing.meter.error_report_triggered` | Usage event ingestion error for metered billing | Alert engineering team; replay missed events to prevent revenue leakage |
 
 ### Key primitives
 
@@ -141,6 +148,7 @@ Every Stripe event follows a consistent envelope. Understanding this schema is e
 - **Stripe Dashboard:** Web UI for non-developers. Dispute management, refunds, customer search, subscription management, revenue reports. The Dashboard is where a business owner lives; the API is where developers live. Both must be excellent because every Stripe account has both roles.
 - **Idempotency keys:** Every mutating API call accepts an idempotency key. If the request is sent twice with the same key, Stripe returns the same response. This single primitive eliminates an entire class of double-charge bugs. It's a deeply thoughtful API design decision that signals Stripe's engineering philosophy.
 - **Connect account types:** Standard (merchant has their own Stripe account; platform gets access), Express (Stripe handles onboarding/dashboard; platform controls the experience), Custom (platform owns the entire UX; Stripe is invisible). This three-tier model lets Stripe serve everything from simple referral integrations to fully embedded financial products.
+- **Billing Meters:** The `Meter` object (GA in 2024) tracks usage events with idempotency, supports high-ingestion rates, and aggregates for billing. This is the foundational primitive for AI token billing, API call billing, and any real-time usage-based pricing model.
 
 ---
 
@@ -194,7 +202,7 @@ Product expansion (Billing / Radar / Connect / Issuing)
 
 **Funnel intervention targets:**
 - Improving test-charge -> live-mode activation by 5 pp would add an estimated 8-12% incremental activated accounts annually.
-- Streamlining KYB (identity verification at live mode activation) is the single highest-leverage drop-off point - every added step here costs ~4% conversion. Stripe's Investment in machine-assisted business verification (using public registry data to pre-fill fields) directly attacks this.
+- Streamlining KYB (identity verification at live mode activation) is the single highest-leverage drop-off point - every added step here costs ~4% conversion. Stripe's investment in machine-assisted business verification (using public registry data to pre-fill fields) directly attacks this.
 
 ### Edge case 1: Developer activates in test mode but cannot complete live KYB
 
@@ -325,7 +333,7 @@ merchant reviews disputes; feedback refines model
 
 **Authorisation rate deep-dive:**
 
-Authorisation rate (the percentage of payment attempts that the issuing bank approves) is the most important operational metric for high-volume merchants. Stripe published data suggests its network-level optimisation delivers 2-4% higher authorisation rates vs. a naive single-path integration. Mechanisms:
+Authorisation rate (the percentage of payment attempts that the issuing bank approves) is the most important operational metric for high-volume merchants. Stripe's network-level optimisation delivers 2-4% higher authorisation rates vs. a naive single-path integration. Mechanisms:
 
 | Mechanism | How it works | Estimated lift |
 |---|---|---|
@@ -358,7 +366,7 @@ Authorisation rate (the percentage of payment attempts that the issuing bank app
 | Connect | Application fee charged by platform; Stripe takes standard processing fee from each connected account transaction | ~10% |
 | Radar (fraud) | Free tier included; Radar for Fraud Teams at $0.02/screened transaction | ~3% |
 | Issuing | Interchange revenue on issued cards; per-card and per-transaction fees | ~3% |
-| Other (Atlas, Identity, Tax, Terminal, Capital) | Flat fees and per-use pricing | ~4% |
+| Other (Atlas, Identity, Tax, Terminal, Capital, Sigma) | Flat fees and per-use pricing | ~4% |
 
 *All figures are estimates based on public pricing pages, analyst reports, and industry benchmarks. Stripe does not report segment revenue publicly.*
 
@@ -419,17 +427,19 @@ AI products have a novel billing model: users purchase "credits" or pay per toke
 | Billing model | Stripe mapping | Limitation |
 |---|---|---|
 | Credit pack purchase (user buys 100K tokens upfront) | One-time PaymentIntent + custom credit ledger in merchant's DB | Stripe has no native credit balance object; merchant must build ledger |
-| Metered API usage (post-pay per token consumed) | `usage_records` on a metered Price | Works for monthly billing; poor UX for real-time balance display |
+| Metered API usage (post-pay per token consumed) | `usage_records` on a metered Price, or new `Meter` object | Works for monthly billing; poor UX for real-time balance display |
 | Hybrid (subscription base + overage) | Subscription + metered add-on Price | Supported natively; proration on overages can be confusing |
-| Real-time credit deduction (pay-as-you-go, sub-second) | Cannot be modelled in Stripe natively | Each API call triggering a charge attempt would exceed rate limits; requires merchant-side credit ledger with periodic batch charges |
+| Real-time credit deduction (pay-as-you-go, sub-second) | `Meter` object with high-throughput event ingestion + periodic invoice | The 2024 Billing Meters GA addresses this; still requires merchant-side balance ledger for real-time display |
 
-**Stripe's response:** Stripe Billing's metered usage model and the new "customer balance" (credit note) feature partially address this. A dedicated "AI billing" product with native credit ledger, real-time balance API, and automatic top-up logic would be a significant value add. This is an obvious adjacent product for Stripe to build - and a meaningful moat builder given that it already processes payments for most of the AI industry.
+**Stripe's response:** The `Meter` object (GA 2024) handles high-throughput usage event ingestion with idempotency. Combined with customer credit balance and automatic top-up (threshold-triggered PaymentIntent), this is now a near-complete AI billing primitive stack. The remaining gap is a native real-time balance API that merchants can call per-inference to check and deduct credits without building a parallel ledger service.
+
+**Strategic opportunity:** A first-party "AI billing" product with native credit ledger, real-time balance API, automatic top-up, and inference-level event schema would be a significant moat deepener. No major competitor has built this natively. Stripe's position as the incumbent processor for most of the AI industry makes this a natural extension - the switching cost to migrate billing for an AI product is extremely high once the credit ledger is embedded.
 
 ---
 
 ## 8) Regulatory moat assessment
 
-Stripe holds money transmission licenses (MTLs) in 46+ US states, is licensed as a Payment Institution (PI) under the EU's PSD2, and holds equivalent licenses in the UK (FCA), Canada, Australia, Singapore, Japan, and others. The question is whether this regulatory infrastructure is a durable moat.
+Stripe holds money transmission licenses (MTLs) in 46+ US states, is licensed as a Payment Institution (PI) under the EU's PSD2, and holds equivalent licenses in the UK (FCA), Canada, Australia, Singapore, Japan, and others.
 
 **Arguments for durability:**
 - MTL acquisition takes 12-24 months per jurisdiction and $500K-$2M in legal, compliance, and capital requirements. A new entrant replicating Stripe's US coverage needs 4-6 years minimum.
@@ -445,7 +455,67 @@ Stripe holds money transmission licenses (MTLs) in 46+ US states, is licensed as
 
 ---
 
-## 9) Trade-offs
+## 9) Strategic vectors 2025-2027 (resolved from v2 open questions)
+
+### 9.1 Stablecoin and crypto payment rails - Bridge acquisition
+
+**The move:** In October 2024 Stripe acquired Bridge for $1.1B - the largest acquisition in Stripe's history. Bridge is a stablecoin orchestration platform that lets companies move money globally via USDC and USDT on Ethereum, Solana, Polygon, and other rails.
+
+**Why this matters for the product:**
+- Stripe had exited crypto in 2018 citing volatility and regulatory uncertainty. The 2024 re-entry is not a hedge - it is a structural bet that stablecoins are becoming settlement infrastructure.
+- Cross-border merchant payouts via stablecoin rails have meaningfully lower latency (minutes vs. 2-5 days for SWIFT wires) and lower FX overhead. This directly attacks the Connect multi-currency payout gap identified in edge case C2.
+- Bridge's orchestration layer means Stripe can offer stablecoin payouts without forcing merchants to manage wallets, gas fees, or on-chain complexity. The abstraction is the same as Stripe's card infrastructure - complex rails, simple API.
+
+**Chargeback model for on-chain payments:** This was the unresolved v2 question. On-chain transactions are irreversible by design. Stripe's answer is to not use on-chain transactions for end-consumer purchases where chargebacks are expected - stablecoin rails are positioned for B2B payouts, marketplace disbursements, and cross-border contractor payments where both parties are known and chargeback risk is low. For consumer payments, Stripe still routes through card rails where chargeback rules apply.
+
+**Competitive implication:** No other major payment processor has a native stablecoin orchestration layer at Stripe's scale. Adyen has no crypto strategy. PayPal has PYUSD but no merchant payout orchestration. This is a 3-5 year window where Stripe can establish stablecoin payout infrastructure as the default for high-growth platforms before the market commoditises.
+
+**Risk:** Regulatory treatment of stablecoins varies by jurisdiction. The EU's MiCA regulation (fully effective 2024) requires stablecoin issuers to be licensed; orchestrators like Bridge/Stripe face compliance obligations that add operational complexity. The US regulatory framework for stablecoins remains unsettled as of mid-2025.
+
+### 9.2 Stripe Sigma - data product or retention feature?
+
+**What Sigma is:** Sigma is a SQL-based analytics environment that lets merchants query their Stripe data (charges, customers, subscriptions, disputes, payouts) directly using SQL in a managed environment. The schema is Stripe's API object model; queries run against a daily snapshot of the merchant's Stripe data.
+
+**Revenue vs. retention question:**
+
+| Lens | Evidence | Verdict |
+|---|---|---|
+| Standalone revenue | Sigma is a paid add-on (~$10-250/month depending on volume tier). Uptake is likely <5% of total merchant base given pricing and SQL requirement. | Modest direct revenue |
+| Retention mechanism | Merchants who build financial reporting on Sigma create a dependency on Stripe's data layer - they can't easily migrate reporting to a new processor without rebuilding queries. | Strong lock-in for the segment that uses it |
+| Data product seed | Sigma's schema is Stripe's authoritative data model. It positions Stripe to offer higher-level analytics products (automated revenue recognition, cohort analysis, LTV models) on top of the SQL layer. | High strategic optionality |
+
+**PM assessment:** Sigma is primarily a retention and expansion feature dressed as a standalone product. The addressable market for "SQL analytics on your payment data" is relatively small (finance/data-savvy teams). The real value is that it creates a data dependency and demonstrates that Stripe's data layer is programmable - which opens the path to AI-assisted revenue intelligence products that would have a much larger TAM.
+
+**What Stripe should build on top of Sigma:** Automated revenue recognition (ASC 606 / IFRS 15 compliant reporting), AI-generated cohort analysis ("your highest-LTV customer cohort has these three characteristics"), and churn prediction signals. These would be meaningful standalone revenue products with CFO-level buyers - different from Stripe's traditional developer buyer.
+
+### 9.3 Terminal and unified commerce
+
+**Current state:** Stripe Terminal is an API-first card reader system. Merchants build their own POS software on top of Stripe's Terminal SDK; the hardware (BBPOS WisePOS E, Stripe Reader M2, Stripe Reader S700) connects via Bluetooth or USB. The positioning is: if you want to build a custom POS app, Terminal gives you the payment layer.
+
+**Why it's strategically important:** The $200B+ brick-and-mortar retail market is the one large payment segment where Stripe is not the default. Adyen's unified commerce platform (same processing rails for online and in-person, unified reporting, card tokenisation across channels) is its strongest enterprise win in retail. If Stripe cannot compete on unified commerce, it cedes the physical retail expansion to Adyen permanently.
+
+**Stripe's unified commerce path:**
+- Terminal's API-first model is a competitive advantage for custom POS builders (restaurants, retail tech companies building their own checkout). This is a different segment from large retailers who want a turnkey POS system.
+- The gap is offline resilience and hardware distribution. Terminal requires a working internet connection for payment processing (no store-and-forward for offline payments). Square's offline mode (stores transactions locally, processes when connectivity returns) is a material advantage for markets with unreliable connectivity.
+- Stripe does not have a retail-ready POS software layer - it provides the payment API, not the inventory management, loyalty, or receipt-printing workflows. This is intentional (API-first principle) but limits penetration into small brick-and-mortar retail where Square bundles everything.
+
+**Realistic 3-year outcome:** Stripe Terminal will continue to grow in the "embedded POS" segment (vertical SaaS companies building payment-enabled apps for restaurants, salons, clinics). It will not displace Square for small retail or Adyen for enterprise unified commerce without a significant software investment or acquisition.
+
+### 9.4 LLM-native API design
+
+**The opportunity:** LLM agents executing financial tasks (book a trip, pay a contractor, manage a subscription) need to call Stripe APIs. Today, agents call Stripe via code generated from the existing API documentation. This works but is fragile - the agent must generate syntactically correct API payloads, handle error codes, and manage multi-step payment flows.
+
+**What Stripe has done:**
+- Stripe published official MCP (Model Context Protocol) tools in early 2025, allowing LLM agents to interact with the Stripe API via structured tool calls rather than raw HTTP. This is the most important developer experience move Stripe has made since Stripe.js.
+- The MCP integration exposes key Stripe operations (create payment intent, create customer, list invoices, handle disputes) as typed tool schemas that LLMs can call reliably.
+
+**Strategic implication:** The LLM-native API question from v2 is now largely resolved. Stripe is betting that agentic commerce (AI agents executing purchases, managing subscriptions, and handling financial operations on behalf of users) will be a significant payment volume driver within 5 years. By shipping MCP tools first, Stripe establishes the default integration pattern before competitors build their own.
+
+**Remaining gap:** Stripe's MCP tools cover the developer-facing API well. The gap is in consumer-facing agentic flows - an AI agent authorised by a consumer to manage their subscriptions, negotiate prices, or execute purchases on their behalf. The authentication and consent model for "agent acts on behalf of user" payments is not yet a Stripe product. This is the next frontier: OAuth-style delegation for agentic payments where the AI agent has scoped, revocable permission to initiate specific payment types up to a defined limit.
+
+---
+
+## 10) Trade-offs
 
 ### Trade-off 1: Simplicity vs. control
 
@@ -471,40 +541,100 @@ Stripe supports 50+ countries and 135+ currencies, but its depth in each market 
 
 **Who feels this:** Companies building for emerging markets find that Stripe's India or Brazil product is technically functional but operationally slower (settlement timing, dispute resolution) and narrower (local payment method coverage) than Razorpay or Mercado Pago respectively.
 
----
+### Trade-off 5: API breadth vs. coherent product surface
 
-## 10) Experiment backlog (v2 additions)
+Every new Stripe product (Issuing, Treasury, Climate, Financial Connections, Identity, Sigma, Radar, Terminal, Connect) adds objects, events, and API endpoints. The API surface is now extremely wide. For developers integrating a subset of products, the cognitive overhead of understanding which objects interact is high. Stripe's docs are excellent but cannot fully offset the complexity of a product that has grown from one API to a financial platform with 50+ products.
 
-These are high-leverage experiments inferred from Stripe's product positioning and known conversion gaps:
-
-| Experiment | Hypothesis | Primary metric | Rollout risk |
-|---|---|---|---|
-| Guided live-mode activation wizard | Step-by-step KYB flow with progress indicator and auto-fill from business registry data reduces drop-off between test mode and live mode | Live mode activation rate (+5-8 pp target) | Medium - KYB is compliance-sensitive; changes must be validated with legal |
-| "First $1,000 in live payments" onboarding track | Personalised email + in-Dashboard checklist for new merchants targeting their first $1K reduces early abandonment | 30-day retention of new merchant accounts (+10-15 pp) | Low - email/dashboard UI only |
-| Radar auto-enroll for card testing protection | New merchants auto-enrolled in aggressive velocity rules for first 30 days; shown as "new merchant protection" | Dispute rate in first 90 days of account life (<0.1% target) | Low - can be overridden; framed as opt-out |
-| AI billing templates (credit ledger + top-up) | Pre-built credit ledger template with top-up flow for AI/token-based products reduces integration time for AI startups | AI startup activation rate; Billing attach rate for AI-category accounts | Medium - new product surface |
-| Connect Express onboarding v2 (ID verification speed) | Replacing manual ID photo upload with live camera + ML verification reduces onboarding time for connected accounts | Connected account onboarding completion rate (+10-20 pp) | High - identity verification; false rejection rate must be tightly monitored |
-| Dispute defense assistant | AI-assisted dispute evidence compilation (auto-pulls login events, usage history, delivery confirmation) reduces merchant effort for first chargeback | Dispute win rate (+5-10 pp); merchant CSAT on dispute flow | Medium - requires API integration with merchant event logs |
+**Who feels this:** New developers integrating more than two Stripe products simultaneously. The discoverability problem - "which Stripe product do I need for this use case?" - is becoming a real growth bottleneck as the product surface expands.
 
 ---
 
-## 11) Open questions (resolved from v1, new questions raised)
+## 11) Metrics framework
 
-### Resolved from v1
+### North Star
+**Monthly Gross Payment Volume (GPV) per active merchant, segmented by product attachment tier**
 
-**Authorisation rate benchmarks:** Stripe's network-level optimisation (smart routing, network tokens, 3DS exemptions) delivers an estimated 2-4% higher authorisation rate vs. a baseline single-path integration. At $100M volume, this is $2-4M in recovered revenue - a concrete and quantifiable value proposition for enterprise renewals.
+Rationale: GPV per merchant captures both volume growth and expansion revenue (more products = higher GPV per merchant from higher retention and lower price sensitivity). A Payments-only merchant growing GPV is a healthy signal; a merchant growing GPV with Billing + Radar attached is a fundamentally better business outcome.
 
-**Connect monetisation mix:** Express accounts are the majority of Connect platforms by count (~55%); Custom accounts drive the majority of Connect GPV due to high-volume embedded finance platforms (~30% of platforms, majority of volume). Standard accounts are a shrinking segment as Stripe pushes Express and Custom for better control and monetisation.
+### Input metrics (leading indicators)
 
-**Stripe Capital:** A meaningful and underappreciated revenue and retention product. Zero incremental CAC, high-margin MCA fees, and strong lock-in via the repayment model. Estimated $500M-$1B revenue contribution. The primary risk is default rates in a downturn - Stripe's underwriting model has only been tested in a benign macro environment (2016-2022).
+| Metric | Target | Why it matters |
+|---|---|---|
+| Time-to-first-live-charge (median, developer signups) | <48 hours | Primary PLG activation metric; predicts 90-day retention |
+| Live-mode activation rate (30-day) | >50% of accounts that complete test charge | Core funnel conversion; identifies KYB friction |
+| Billing attachment rate (SaaS accounts, 90-day) | >40% | Highest switching-cost product after Connect |
+| Connect account onboarding completion rate | >70% | Platform growth proxy; locked-in revenue driver |
+| Smart Retries revenue recovery rate | >5% of failed payment volume | Measures billing retention value vs. competitor |
+| AI billing (Meter) activation rate (AI-category accounts) | >60% within 60 days of first charge | Emerging segment capture |
 
-**AI / LLM opportunity:** Stripe already processes payments for most AI companies. The gap is in native credit ledger / token-based billing primitives. An AI billing product with real-time balance, auto top-up, and metered usage that handles sub-second credit deduction would be a significant moat deepener. No major competitor has built this natively yet.
+### Guardrail metrics
 
-**Regulatory moat:** Meaningful but not decisive. Primary moats are transaction data network and multi-product switching costs. Regulation adds 2-4 years to new entrant timelines but does not prevent well-capitalised incumbents from competing.
+| Metric | Threshold | Risk if breached |
+|---|---|---|
+| Dispute rate (network average across all merchants) | <0.1% | Above 1% triggers Visa/Mastercard monitoring for individual merchants; systemic increase signals fraud model degradation |
+| Webhook delivery success rate (within 24h) | >99.5% | Failed delivery causes merchant fulfillment failures; damages trust |
+| API P99 latency (PaymentIntent create) | <500ms | Developer experience; affects checkout conversion at high-volume merchants |
+| New merchant card testing dispute rate (first 90 days) | <0.5% | Early fraud exposure damages new merchant standing |
+| Enterprise churn rate | <10% annually | Enterprise accounts have 10-50x the ARPU of SMB; any increase requires investigation |
 
-### New open questions (for v3)
+---
 
-- **Stablecoin and crypto payment rails:** Stripe reactivated crypto payments support (USDC on Ethereum, Solana, and Polygon) in 2024 after shutting it down in 2018. Is this a meaningful new payment rail or a hedge against future crypto adoption? What is the dispute and chargeback model for on-chain payments?
-- **Stripe Sigma and data products:** Stripe offers Sigma (SQL-based analytics on your Stripe data in a managed environment). Is this the seed of a data product that could generate standalone revenue, or is it a retention feature? How does it compare to a merchant building their own BI layer on Stripe's API data?
-- **Terminal and unified commerce:** Stripe Terminal's API-first POS hardware is growing. Does Stripe have a credible path to winning unified commerce (online + in-person) against Adyen's unified commerce platform for enterprise retail? What does the enterprise unified commerce win look like and what is the timeline?
-- **LLM-native API design:** Could Stripe expose a natural language API layer (e.g., "create a subscription for customer X at $99/month starting next week") that LLM agents can call directly? This would be a significant developer experience leap in the agentic AI era and a meaningful moat vs. processors with legacy APIs.
+## 12) Experiment backlog
+
+| Experiment | Hypothesis | Primary metric | Acceptance criteria | Rollout risk | Phase |
+|---|---|---|---|---|---|
+| Guided live-mode activation wizard | Step-by-step KYB flow with progress indicator and auto-fill from business registry data reduces test-to-live drop-off | Live mode activation rate | +5 pp lift at 95% significance; no increase in KYB false-rejection rate | Medium - KYB is compliance-sensitive | Phase 1: 10% rollout to new signups in US/UK |
+| "First $1,000 in live payments" onboarding track | Personalised email + in-Dashboard checklist for new merchants targeting their first $1K reduces early abandonment | 30-day live merchant retention | +10 pp retention lift; email unsubscribe rate <5% | Low - email/dashboard UI only | Phase 1: A/B test on all new accounts |
+| Radar auto-enroll for card testing protection | New merchants auto-enrolled in aggressive velocity rules for first 30 days; shown as "new merchant protection" opt-out | Dispute rate in first 90 days of account life | Dispute rate <0.1%; false block rate <0.5% on legitimate transactions | Low - framed as opt-out with clear UI | Phase 1: All new accounts globally |
+| AI billing templates (credit ledger + top-up) | Pre-built credit ledger template with automatic top-up flow reduces AI startup integration time from 2 weeks to 2 days | AI startup Billing activation rate; time-to-first-meter-event | >60% of AI-category accounts activate Billing Meters within 60 days; integration support ticket volume -20% | Medium - new product surface | Phase 1: Private beta with 50 AI company design partners |
+| Connect Express onboarding v2 (live camera ID verification) | Replacing manual ID photo upload with live camera + ML verification reduces connected account onboarding completion time by 40% | Connected account onboarding completion rate | +10 pp completion lift; false rejection rate stays <2%; time-to-verified <5 min median | High - identity verification; must monitor false rejection closely | Phase 1: 5% rollout in UK/AU; expand after 30-day false-rejection audit |
+| Dispute defense assistant | AI-assisted dispute evidence compilation (auto-pulls login events, usage history, delivery confirmation) reduces merchant effort for first chargeback | Dispute win rate; merchant CSAT on dispute flow | Dispute win rate +5 pp; time-to-evidence-submission -50%; CSAT >4.0/5.0 | Medium - requires API integration with merchant event logs | Phase 1: Opt-in beta for Billing merchants with >10 disputes/month |
+| Agentive payment delegation (scoped OAuth for AI agents) | Providing a scoped permission model for AI agents to initiate payments on behalf of users unlocks a new platform segment | AI agent platform signups; delegated payment volume | 100+ platform signups in first 60 days; $10M+ delegated GPV within 6 months | High - novel auth model; security review required | Phase 1: Closed beta with 10 agentic AI platforms |
+
+---
+
+## 13) 30-60-90 day PM plan
+
+### 30 days - Diagnose
+
+- Instrument the activation funnel at the KYB step: what specific fields cause the highest abandonment? Which business types and countries have the lowest live-mode activation rates?
+- Pull cohort data on product attachment: what is the median time from first live charge to first Billing subscription created? What event or email sequence best predicts early Billing activation?
+- Review Connect Express onboarding completion by country: which markets have >30% drop-off? Is it identity verification, bank account linking, or document upload?
+- Audit Radar new-merchant protection: what % of new merchants experience a card testing attack in first 30 days? What is the average dispute rate at day 30 for attacked vs. non-attacked new merchants?
+- Talk to 10 AI company founders who built on Stripe Billing in the past 12 months: what did they have to build themselves that Stripe should have provided natively?
+
+### 60 days - Experiment
+
+- Launch the guided live-mode activation wizard A/B test (10% rollout). Target: measurable KYB drop-off reduction within 30 days of launch.
+- Ship the Radar new-merchant auto-enroll (all new accounts). Instrument false-block rate daily; set automatic kill switch at >1% false-block rate.
+- Close AI billing template design partner program: 50 companies, structured integration feedback every 2 weeks, roadmap prioritisation based on common integration gaps.
+- Prototype dispute defense assistant: integrate with Stripe's own event log (login events, usage records from Billing Meters) to auto-compile evidence package. Validate with 20 merchant disputes before broader release.
+
+### 90 days - Evaluate and scale
+
+- Review live-mode activation wizard lift. If +5 pp or better at 95% significance: plan global rollout over 60 days with localisation for top 10 Stripe markets.
+- Evaluate AI billing template activation rate from design partner cohort. If >50% activate Billing Meters within 30 days of template setup (vs. 30-day baseline): prioritise GA for Q3.
+- Review Radar auto-enroll dispute rate data. If new-merchant dispute rate in first 90 days dropped below 0.1% with false-block rate below 0.5%: make auto-enroll permanent default and write case study for enterprise prospects.
+- Make go/no-go decision on agentive payment delegation based on legal/compliance review outcome. If clear to proceed: announce closed beta at Stripe Sessions and begin developer documentation.
+
+---
+
+## 14) Open questions
+
+All v2 open questions have been resolved in section 9 above. The following are net-new questions for the PRD phase:
+
+1. **Stablecoin payout adoption curve:** What % of Connect platforms will offer stablecoin payouts to connected accounts within 24 months of Bridge integration GA? Which platform categories (gig economy, creator economy, cross-border freelance) are highest-intent?
+
+2. **AI agent authorisation model:** How should Stripe model the consent and revocation flow for AI agents initiating payments? What are the card network rules on agent-initiated transactions vs. cardholder-present vs. stored credential flows?
+
+3. **Sigma -> revenue intelligence product:** Is there a CFO-buyer product waiting to be built on top of Sigma's data layer? What would automated ASC 606 revenue recognition + LTV cohort analysis be worth per seat for a $50M ARR SaaS company?
+
+4. **Terminal offline mode:** What is the engineering and regulatory complexity of shipping store-and-forward offline payments for Terminal? What markets require offline mode as a hard requirement?
+
+5. **Enterprise PLG -> sales handoff trigger:** What is the observable signal (transaction volume, product breadth, dispute complexity) that most accurately predicts when a self-serve merchant is ready for enterprise contract conversion? Is Stripe's current trigger too late (by which point Adyen has already entered the conversation)?
+
+6. **Multi-product bundling:** Would a "Startup Stack" bundle (Payments + Billing + Radar + one Sigma seat at a fixed monthly price) increase product attachment and retention vs. the current a-la-carte model, even if it reduces ARPU in the short term?
+
+---
+
+*All metrics are directional estimates based on public information, Stripe pricing pages, and industry benchmarks - not internal Stripe data.*
